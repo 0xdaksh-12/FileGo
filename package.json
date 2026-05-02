@@ -1,0 +1,37 @@
+{
+  "name": "filego",
+  "version": "1.0.0",
+  "description": "Full-stack file sharing application",
+  "private": true,
+  "scripts": {
+    "client:dev": "npm run dev --prefix client",
+    "server:dev": "npm run dev --prefix server",
+    "client:test": "npm run test --prefix client",
+    "server:test": "npm run test --prefix server",
+    "test": "npm run client:test && npm run server:test",
+    "dev": "concurrently \"npm run client:dev\" \"npm run server:dev\"",
+    "install-all": "npm install && npm install --prefix client && npm install --prefix server",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3"
+  },
+  "lint-staged": {
+    "client/src/**/*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "server/src/**/*.ts": [
+      "prettier --write"
+    ],
+    "**/*.{json,md,yaml,yml}": [
+      "prettier --write"
+    ]
+  },
+  "volta": {
+    "node": "22.19.0",
+    "npm": "10.9.3"
+  }
+}

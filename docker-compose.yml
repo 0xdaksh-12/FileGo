@@ -1,0 +1,51 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: filego-server
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./server/.env
+    environment:
+      # For local docker networking, connects to the 'mongo' service unless
+      # MONGO_URL is explicitly set in .env to an external DB like Atlas
+      - MONGO_URL=${MONGO_URL:-mongodb://mongo:27017/filego}
+    depends_on:
+      mongo:
+        # INFRA-1: Wait for mongo to be healthy before starting, not just started
+        condition: service_healthy
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        # INFRA-3: Pass as a build ARG so Vite can bake it into the static bundle
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
+    container_name: filego-client
+    ports:
+      - "80:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:7
+    container_name: filego-mongo
+    # INFRA-4: Don't expose MongoDB port to the host; accessible within the Docker network only
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+    # INFRA-1: Health check so dependant services wait until MongoDB is ready
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongo-data:
