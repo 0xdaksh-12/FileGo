@@ -1,6 +1,6 @@
 # --- AWS S3 ---
 resource "aws_s3_bucket" "filego_uploads" {
-  bucket = "filego-uploads-${random_id.bucket_suffix.hex}"
+  bucket = "filego-uploads-${random_id.suffix.hex}"
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "filego_lifecycle" {
@@ -18,7 +18,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "filego_lifecycle" {
   }
 }
 
-resource "random_id" "bucket_suffix" {
+resource "random_id" "suffix" {
   byte_length = 4
 }
 
@@ -34,9 +34,15 @@ resource "aws_s3_bucket_cors_configuration" "filego_cors" {
   }
 }
 
+# --- Google Cloud ---
 
-resource "google_project_service" "secretmanager" {
-  service            = "secretmanager.googleapis.com"
+resource "google_project_service" "apis" {
+  for_each = toset([
+    "secretmanager.googleapis.com",
+    "iam.googleapis.com",
+    "compute.googleapis.com"
+  ])
+  service            = each.key
   disable_on_destroy = false
 }
 
@@ -61,7 +67,7 @@ resource "google_secret_manager_secret" "filego_secrets" {
     auto {}
   }
   
-  depends_on = [google_project_service.secretmanager]
+  depends_on = [google_project_service.apis]
 }
 
 resource "google_secret_manager_secret_version" "filego_secrets_version" {
@@ -73,6 +79,7 @@ resource "google_secret_manager_secret_version" "filego_secrets_version" {
 resource "google_service_account" "server_sa" {
   account_id   = "filego-server-sa"
   display_name = "FileGo Server Service Account"
+  depends_on   = [google_project_service.apis]
 }
 
 resource "google_project_iam_member" "secret_accessor" {
@@ -82,12 +89,13 @@ resource "google_project_iam_member" "secret_accessor" {
 }
 
 resource "google_compute_network" "vpc_network" {
-  name                    = "filego-network"
+  name                    = "filego-network-${random_id.suffix.hex}"
   auto_create_subnetworks = true
+  depends_on              = [google_project_service.apis]
 }
 
 resource "google_compute_firewall" "default" {
-  name    = "filego-firewall"
+  name    = "filego-firewall-${random_id.suffix.hex}"
   network = google_compute_network.vpc_network.name
 
   allow {
@@ -151,5 +159,8 @@ EOF
     docker-compose up -d server
   EOT
 
-  depends_on = [google_secret_manager_secret_version.filego_secrets_version]
+  depends_on = [
+    google_secret_manager_secret_version.filego_secrets_version,
+    google_project_service.apis
+  ]
 }
