@@ -34,13 +34,16 @@ build: ## Build client and server
 	$(NPM) run build --prefix client
 	$(NPM) run build --prefix server
 
-docker-up: ## Start docker containers
+docker-up: ## Start docker containers (Development)
 	@echo "Starting Docker containers..."
-	$(DC) up --build -d
+	$(DC) up --build
+
+logs: ## Tail all logs
+	$(DC) logs -f
 
 docker-down: ## Stop docker containers
 	@echo "Stopping Docker containers..."
-	$(DC) down
+	$(DC) down -v
 
 clean: ## Remove build artifacts and node_modules
 	@echo "Cleaning project..."

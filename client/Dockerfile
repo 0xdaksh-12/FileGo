@@ -1,7 +1,7 @@
 # Stage 1: Build
 # VITE_API_URL must be passed as a build ARG so Vite can bake it into the
 # static bundle. Runtime env vars have no effect on pre-built static files.
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -19,10 +19,10 @@ RUN npm run build
 # Stage 2: Serve
 FROM nginx:alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy custom Nginx configuration
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# SEC-4: Add a strict CSP header to the default Nginx config
-RUN sed -i 's/location \/ {/location \/ {\n        add_header Content-Security-Policy "default-src '"'self'"'; script-src '"'self'"'; style-src '"'self'"' '"'unsafe-inline'"'; img-src '"'self'"' data: https:; connect-src '"'self'"' http:\/\/localhost:3000 https:\/\/*.amazonaws.com;" always;/' /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
 
