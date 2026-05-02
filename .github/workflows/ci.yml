@@ -2,9 +2,9 @@ name: FileGo CI
 
 on:
   push:
-    branches: [ "main", "deploy" ]
+    branches: ["main", "deploy"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   server-test:
@@ -12,52 +12,58 @@ jobs:
     defaults:
       run:
         working-directory: ./server
-    
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js 22
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: 'npm'
-        cache-dependency-path: './server/package-lock.json'
-    - run: npm ci
-    - run: npm run lint
-      continue-on-error: true # lint is advisory; build and test are hard gates
-    - run: npm run build
-    - run: npm test
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+          cache-dependency-path: "./server/pnpm-lock.yaml"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+        continue-on-error: true
+      - run: pnpm run build
+      - run: pnpm test
 
   client-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./client
-    
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js 22
-      uses: actions/setup-node@v4
-      with:
-        node-version: 22
-        cache: 'npm'
-        cache-dependency-path: './client/package-lock.json'
-    - run: npm ci
-    - run: npm run lint
-      continue-on-error: true
-    - run: npm run build
-    - run: npm test
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+          cache-dependency-path: "./client/pnpm-lock.yaml"
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+        continue-on-error: true
+      - run: pnpm run build
+      - run: pnpm test
 
   terraform-check:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./terraform
-    
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-    - run: terraform fmt -check
-      continue-on-error: true
-    - run: terraform init -backend=false
-    - run: terraform validate
+      - uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - run: terraform fmt -check
+        continue-on-error: true
+      - run: terraform init -backend=false
+      - run: terraform validate
