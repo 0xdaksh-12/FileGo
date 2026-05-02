@@ -10,11 +10,12 @@ import axios from "axios";
  * Pings the heartbeat URL every minute if configured.
  */
 function startHeartbeat() {
-  if (!env.BETTER_STACK_UPTIME_URL) return;
+  const url = env.BETTER_STACK_UPTIME_URL;
+  if (!url) return;
 
   const ping = async () => {
     try {
-      await axios.get(env.BETTER_STACK_UPTIME_URL);
+      await axios.get(url);
     } catch (err) {
       logger.error("Heartbeat ping failed", { err });
     }
