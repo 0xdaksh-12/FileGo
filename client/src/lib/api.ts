@@ -43,8 +43,8 @@ api.interceptors.response.use(
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      originalRequest.url !== "/api/auth/login" &&
-      originalRequest.url !== "/api/auth/refresh"
+      originalRequest.url !== "/auth/login" &&
+      originalRequest.url !== "/auth/refresh"
     ) {
       if (isRefreshing) {
         return new Promise(function(resolve, reject) {
@@ -61,7 +61,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const response = await api.post("/api/auth/refresh");
+        const response = await api.post("/auth/refresh");
         const { token } = response.data;
         useAuthStore.getState().setToken(token);
         processQueue(null, token);

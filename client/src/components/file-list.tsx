@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import { useFiles } from "@/hooks/use-queries";
 import { useDeleteFile } from "@/hooks/use-mutations";
+import { formatBytes } from "@/utils/format";
+import { useState } from "react";
 
 export default function FileList() {
   const { 
@@ -12,9 +14,15 @@ export default function FileList() {
     hasNextPage, 
     isFetchingNextPage 
   } = useFiles();
-  const { mutate: deleteFile, isPending: deletingId } = useDeleteFile();
+  const { mutate: deleteFile, isPending: isDeleting } = useDeleteFile();
+  const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
 
   const files = data?.pages.flatMap((page) => page.files) || [];
+
+  const handleDelete = (id: string) => {
+    setDeletingFileId(id);
+    deleteFile(id, { onSettled: () => setDeletingFileId(null) });
+  };
 
   const copyLink = (fileId: string) => {
     const link = `${window.location.origin}/download/${fileId}`;
@@ -23,13 +31,7 @@ export default function FileList() {
     });
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-  };
+  const formatFileSize = formatBytes;
 
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
@@ -208,8 +210,8 @@ export default function FileList() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => deleteFile(file.id)}
-                        disabled={deletingId}
+                        onClick={() => handleDelete(file.id)}
+                        disabled={deletingFileId === file.id && isDeleting}
                         className="p-1.5 sm:p-2 text-gray-400 hover:text-danger hover:bg-red-50"
                       >
                         <span className="material-symbols-outlined text-[20px]">delete</span>

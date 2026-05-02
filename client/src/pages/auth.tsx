@@ -146,7 +146,7 @@ export default function AuthPage() {
                               <Input
                                 type="password"
                                 placeholder="Enter your password"
-                                autoComplete="new-password"
+                                autoComplete="current-password"
                                 {...field}
                               />
                             </FormControl>
