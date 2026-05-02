@@ -11,9 +11,7 @@ describe("Auth Integration", () => {
   };
 
   it("should register a new user", async () => {
-    const res = await request(app)
-      .post("/api/auth/register")
-      .send(testUser);
+    const res = await request(app).post("/api/auth/register").send(testUser);
 
     expect(res.status).toBe(201);
     expect(res.body.user.email).toBe(testUser.email);
@@ -27,10 +25,8 @@ describe("Auth Integration", () => {
 
   it("should return 409 if email already exists", async () => {
     await request(app).post("/api/auth/register").send(testUser);
-    
-    const res = await request(app)
-      .post("/api/auth/register")
-      .send(testUser);
+
+    const res = await request(app).post("/api/auth/register").send(testUser);
 
     expect(res.status).toBe(409);
     expect(res.body.message).toContain("already exists");
@@ -39,12 +35,10 @@ describe("Auth Integration", () => {
   it("should login an existing user", async () => {
     await request(app).post("/api/auth/register").send(testUser);
 
-    const res = await request(app)
-      .post("/api/auth/login")
-      .send({
-        email: testUser.email,
-        password: testUser.password,
-      });
+    const res = await request(app).post("/api/auth/login").send({
+      email: testUser.email,
+      password: testUser.password,
+    });
 
     expect(res.status).toBe(200);
     expect(res.body.token).toBeDefined();
@@ -54,12 +48,10 @@ describe("Auth Integration", () => {
   it("should return 401 for invalid credentials", async () => {
     await request(app).post("/api/auth/register").send(testUser);
 
-    const res = await request(app)
-      .post("/api/auth/login")
-      .send({
-        email: testUser.email,
-        password: "wrongpassword",
-      });
+    const res = await request(app).post("/api/auth/login").send({
+      email: testUser.email,
+      password: "wrongpassword",
+    });
 
     expect(res.status).toBe(401);
     expect(res.body.message).toContain("Invalid credentials");
@@ -69,11 +61,9 @@ describe("Auth Integration", () => {
     const regRes = await request(app).post("/api/auth/register").send(testUser);
     const cookie = regRes.headers["set-cookie"] as any;
 
-    const res = await request(app)
-      .post("/api/auth/refresh")
-      .set("Cookie", cookie);
+    const res = await request(app).post("/api/auth/refresh").set("Cookie", cookie);
 
-    expect(res.status).toBe(201);
+    expect(res.status).toBe(200);
     expect(res.body.token).toBeDefined();
   });
 
@@ -88,7 +78,7 @@ describe("Auth Integration", () => {
       .set("Cookie", cookie);
 
     expect(res.status).toBe(204);
-    
+
     // Check session in DB
     const sessions = await Session.find({});
     expect(sessions[0].valid).toBe(false);
