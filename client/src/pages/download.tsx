@@ -31,7 +31,7 @@ export default function Download() {
     if (!id) return;
     setLoading(true);
     try {
-      const response = await api.get(`/api/files/${id}`);
+      const response = await api.get(`/files/${id}`);
       setFileInfo(response.data);
       setError(null);
     } catch (err) {
@@ -67,7 +67,7 @@ export default function Download() {
       setDownloading(true);
 
       const response = await api.post(
-        `/api/files/${id}/download`,
+        `/files/${id}/download`,
         fileInfo.hasPassword ? { password } : undefined
       );
       const { downloadUrl } = response.data;

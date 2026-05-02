@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import ShareModal from "./share-model";
 import { useFileStore } from "@/store/useFileStore";
 import { useQueryClient } from "@tanstack/react-query";
+import { formatBytes } from "@/utils/format";
 
 interface UploadedFileMeta {
   shareUrl: string;
@@ -56,7 +57,7 @@ export default function UploadZone() {
     multiple: false,
   });
 
-  const handleUpload = async (e: React.FormEvent | React.MouseEvent) => {
+  const handleUpload = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!selectedFiles.length) {
       toast.error("No files selected. Please choose a file.");
@@ -68,7 +69,7 @@ export default function UploadZone() {
     try {
       const file = selectedFiles[0];
 
-      const response = await api.post("/api/files/upload-url", {
+      const response = await api.post("/files/upload-url", {
         name: file.name,
         type: file.type,
         size: file.size,
@@ -106,7 +107,7 @@ export default function UploadZone() {
       setPassword("");
       toast.success("Upload successful! Your file is ready to share.");
     } catch (error: any) {
-      toast.error(`Upload failed: ${error.message || "Unknown error"}`);
+      toast.error(error.response?.data?.message || "Upload failed. Please try again.");
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -114,13 +115,7 @@ export default function UploadZone() {
   };
 
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 B";
-    const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-  };
+
 
   return (
     <>
@@ -141,7 +136,7 @@ export default function UploadZone() {
               <span className="material-symbols-outlined text-gray-400 text-[32px]">upload_file</span>
             </div>
             <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
-              {isDragActive ? "Drop your file here" : "Drop your file here"}
+              {isDragActive ? "Release to upload" : "Drop your file here"}
             </h3>
             <p className="text-sm text-gray-600 mb-4 sm:mb-6">
               or click to browse from your device
@@ -177,7 +172,7 @@ export default function UploadZone() {
                     <div>
                       <p className="font-medium text-gray-900">{file.name}</p>
                       <p className="text-sm text-gray-500">
-                        {formatFileSize(file.size)}
+                        {formatBytes(file.size)}
                       </p>
                     </div>
                   </div>
@@ -229,7 +224,7 @@ export default function UploadZone() {
                   type="password"
                   placeholder="Optional password"
                   value={password}
-                  autoComplete="username"
+                  autoComplete="new-password"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   className="w-full bg-white"
                 />

@@ -3,7 +3,6 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import api from "../lib/api";
 
 export interface User {
-  _id: string;
   name: string;
   email: string;
   profilePic?: string;
@@ -56,7 +55,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       signin: async (creds) => {
         set({ loading: true });
         try {
-          const res = await api.post("/api/auth/login", creds);
+          const res = await api.post("/auth/login", creds);
           const { token, user } = res.data;
           set({ token, user, isAuth: true, loading: false });
           return { success: true };
@@ -72,7 +71,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       signup: async (creds) => {
         set({ loading: true });
         try {
-          const res = await api.post("/api/auth/register", creds);
+          const res = await api.post("/auth/register", creds);
           const { token, user } = res.data;
           set({ token, user, isAuth: true, loading: false });
           return { success: true };
@@ -88,7 +87,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
       googleAuth: async (credential) => {
         set({ loading: true });
         try {
-          const res = await api.post("/api/auth/google", { credential });
+          const res = await api.post("/auth/google", { credential });
           const { token, user } = res.data;
           set({ token, user, isAuth: true, loading: false });
           return { success: true };
@@ -103,7 +102,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
       logout: async () => {
         try {
-          await api.post("/api/auth/logout");
+          await api.post("/auth/logout");
         } finally {
           set({ user: null, token: null, isAuth: false });
         }
@@ -114,7 +113,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
         set({ loading: true });
         try {
           // Attempt silent refresh
-          const res = await api.post("/api/auth/refresh");
+          const res = await api.post("/auth/refresh");
           const { token, user } = res.data;
 
           if (token && user) {

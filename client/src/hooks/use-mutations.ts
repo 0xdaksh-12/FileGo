@@ -7,7 +7,7 @@ export const useDeleteFile = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.delete(`/api/files/${id}`);
+      await api.delete(`/files/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['files'] });
