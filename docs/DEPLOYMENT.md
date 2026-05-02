@@ -89,7 +89,7 @@ aws_access_key      = "your-aws-access-key"
 aws_secret_key      = "your-aws-secret-key"
 aws_region          = "ap-south-1"
 better_stack_token  = "your-better-stack-token"
-github_repo         = "https://github.com/yourusername/FileGo"
+github_repo         = "0xdaksh-12/FileGo"
 domain_name         = "filego.yourdomain.org"
 certbot_email       = "your-email@example.com"
 ```
