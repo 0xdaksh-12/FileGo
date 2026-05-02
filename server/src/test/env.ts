@@ -1,0 +1,10 @@
+process.env.JWT_SECRET = "test-secret-long-enough-for-validation-32-chars";
+process.env.JWT_REFRESH_SECRET = "test-refresh-secret-long-enough-for-validation-32-chars";
+process.env.AWS_ACCESS_KEY_ID = "test-key";
+process.env.AWS_SECRET_ACCESS_KEY = "test-secret";
+process.env.AWS_BUCKET_NAME = "test-bucket";
+process.env.AWS_REGION = "us-east-1";
+process.env.CLIENT_URL = "http://localhost:3000";
+process.env.MONGO_URL = "mongodb://localhost:27017/test";
+process.env.NODE_ENV = "test";
+process.env.PORT = "3001";
