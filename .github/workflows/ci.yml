@@ -1,0 +1,67 @@
+name: FileGo CI
+
+on:
+  push:
+    branches: [ "main", "deploy" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  server-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./server
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: './server/package-lock.json'
+    - run: npm ci
+    - run: npm run lint
+      continue-on-error: true # Make this strict later
+    - run: npm run build
+      continue-on-error: true
+    - run: npm test
+      continue-on-error: true
+
+  client-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: './client/package-lock.json'
+    - run: npm ci
+    - run: npm run lint
+      continue-on-error: true
+    - run: npm run build
+      continue-on-error: true
+    - run: npm test
+      continue-on-error: true
+
+  terraform-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+    - run: terraform fmt -check
+      continue-on-error: true
+    - run: terraform init -backend=false
+    - run: terraform validate

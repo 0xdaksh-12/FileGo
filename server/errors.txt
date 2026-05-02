@@ -1,0 +1,17 @@
+src/controller/auth.controller.ts(40,56): error TS2352: Conversion of type 'ObjectId' to type 'string' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/controller/auth.controller.ts(60,56): error TS2352: Conversion of type 'ObjectId' to type 'string' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/controller/auth.controller.ts(83,35): error TS2352: Conversion of type 'ObjectId' to type 'string' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/controller/auth.controller.ts(124,56): error TS2352: Conversion of type 'ObjectId' to type 'string' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/controller/s3.controller.ts(90,11): error TS7022: 'command' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
+src/controller/s3.controller.ts(95,11): error TS7022: 'response' implicitly has type 'any' because it does not have a type annotation and is referenced directly or indirectly in its own initializer.
+src/controller/s3.controller.ts(98,34): error TS7006: Parameter 'obj' implicitly has an 'any' type.
+src/controller/s3.controller.ts(102,34): error TS2339: Property 'NextContinuationToken' does not exist on type 'ServiceOutputTypes'.
+  Property 'NextContinuationToken' does not exist on type 'AbortMultipartUploadCommandOutput'.
+src/middleware/validate.Middleware.ts(2,10): error TS2724: '"zod"' has no exported member named 'AnyZodObject'. Did you mean 'ZodObject'?
+src/middleware/validate.Middleware.ts(16,58): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+src/middleware/validate.Middleware.ts(20,25): error TS2339: Property 'errors' does not exist on type 'ZodError<unknown>'.
+src/schemas/auth.schema.ts(22,7): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(params?: string | { error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; } | undefined): ZodString', gave the following error.
+    Object literal may only specify known properties, and 'required_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.
+  Overload 2 of 2, '(params?: string | { error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; } | undefined): $ZodType<...>', gave the following error.
+    Object literal may only specify known properties, and 'required_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.

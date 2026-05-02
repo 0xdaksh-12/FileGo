@@ -52,7 +52,8 @@ cp server/.env.example server/.env
 ```
 
 ### 3. Observability & Auth
-- **Better Stack**: Get a source token from [Better Stack](https://betterstack.com/) and add `BETTER_STACK_SOURCE_TOKEN` to `server/.env`.
+- **Better Stack Logs**: Get a source token from [Better Stack](https://betterstack.com/) and add `BETTER_STACK_SOURCE_TOKEN` to `server/.env`.
+- **Better Stack Uptime**: Add `BETTER_STACK_UPTIME_URL` (heartbeat) to `server/.env` to enable real-time health monitoring.
 - **Google OAuth**: Create a project in the [Google Cloud Console](https://console.cloud.google.com/), obtain a **Client ID** and **Client Secret**.
     - Add both to `server/.env`.
     - Add only the **Client ID** to `client/.env`.

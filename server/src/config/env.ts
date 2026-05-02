@@ -18,6 +18,8 @@ const envSchema = z.object({
   LOG_LEVEL: z.string().default("info"),
   BETTER_STACK_SOURCE_TOKEN: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  BETTER_STACK_API_TOKEN: z.string().optional(),
+  BETTER_STACK_UPTIME_URL: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
