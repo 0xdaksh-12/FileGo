@@ -13,6 +13,11 @@ jobs:
     name: 'Terraform Deploy'
     runs-on: ubuntu-latest
     env:
+      # Standard AWS env vars for the provider
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      
+      # Terraform variables
       TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
       TF_VAR_mongo_url: ${{ secrets.MONGO_URL }}
       TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}

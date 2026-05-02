@@ -10,6 +10,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "filego_lifecycle" {
     id     = "auto-delete-old-files"
     status = "Enabled"
 
+    filter {}
+
     expiration {
       days = 30
     }
