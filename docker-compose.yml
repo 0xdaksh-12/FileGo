@@ -11,7 +11,7 @@ services:
     environment:
       # For local docker networking, connects to the 'mongo' service unless
       # MONGO_URL is explicitly set in .env to an external DB like Atlas
-      - MONGO_URL=${MONGO_URL:-mongodb://mongo:27017/filego}
+      - MONGO_URL=${MONGO_URL:-mongodb://mongo:27017/filego?replicaSet=rs0}
     depends_on:
       mongo:
         # INFRA-1: Wait for mongo to be healthy before starting, not just started
@@ -39,9 +39,20 @@ services:
     volumes:
       - mongo-data:/data/db
     restart: unless-stopped
-    # INFRA-1: Health check so dependant services wait until MongoDB is ready
+    # Start with replica set support
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--quiet", "--logpath", "/dev/null"]
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: >
+        mongosh --eval "
+          try {
+            rs.status().ok
+          } catch (e) {
+            rs.initiate({
+              _id: 'rs0',
+              members: [{ _id: 0, host: 'mongo:27017' }]
+            }).ok || rs.status().ok
+          }
+        "
       interval: 10s
       timeout: 5s
       retries: 5

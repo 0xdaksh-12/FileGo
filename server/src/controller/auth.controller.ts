@@ -2,12 +2,7 @@ import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { Types } from "mongoose";
 import { ConflictError, UnauthorizedError } from "../utils/errorHandler";
-import {
-  checkUserByEmail,
-  createUser,
-  getUserByEmail,
-  getUserById,
-} from "../services/userService";
+import { checkUserByEmail, createUser, getUserByEmail, getUserById } from "../services/userService";
 import {
   createSession,
   saveToken,
@@ -16,16 +11,12 @@ import {
 } from "../services/sessionService";
 import { hashed, compareHash } from "../lib/bcrypt";
 import { generateToken, verifyToken } from "../lib/jwt";
-import {
-  setCookieToken,
-  removeCookieToken,
-  getCookieToken,
-} from "../utils/tokenManager";
+import { setCookieToken, removeCookieToken, getCookieToken } from "../utils/tokenManager";
 import { isTokenHalfExpired } from "../utils/isTokenHalfExpired";
 import { wrapAsync } from "../utils/tryCatchWrapper";
 import { env } from "../config/env";
 
-const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET);
 
 const ACCESS_TOKEN_EXPIRES_IN = "15m";
 const REFRESH_TOKEN_EXPIRES_IN = "7d";
@@ -46,11 +37,7 @@ async function createAuthSession({
   // QA-1: Use proper Types.ObjectId instead of casting to any
   const sessionId = (session._id as Types.ObjectId).toString();
 
-  const accessToken = generateToken(
-    { userId, sessionId },
-    env.JWT_SECRET,
-    ACCESS_TOKEN_EXPIRES_IN,
-  );
+  const accessToken = generateToken({ userId, sessionId }, env.JWT_SECRET, ACCESS_TOKEN_EXPIRES_IN);
   const refreshToken = generateToken(
     { userId, sessionId },
     env.JWT_REFRESH_SECRET,
@@ -128,8 +115,7 @@ export const google_auth = wrapAsync(async (req: Request, res: Response) => {
   });
 
   const payload = ticket.getPayload();
-  if (!payload || !payload.email)
-    throw new UnauthorizedError("Invalid Google token");
+  if (!payload || !payload.email) throw new UnauthorizedError("Invalid Google token");
 
   const { email, name, picture } = payload;
   let user = await getUserByEmail(email);
@@ -164,10 +150,7 @@ export const refresh_token = wrapAsync(async (req: Request, res: Response) => {
     return res.status(204).send();
   }
 
-  const payload = verifyToken(
-    cookieToken,
-    env.JWT_REFRESH_SECRET,
-  ) as any;
+  const payload = verifyToken(cookieToken, env.JWT_REFRESH_SECRET) as any;
   if (!payload || !payload.userId || !payload.sessionId) {
     throw new UnauthorizedError("Invalid credentials");
   }
@@ -179,11 +162,7 @@ export const refresh_token = wrapAsync(async (req: Request, res: Response) => {
     throw new UnauthorizedError("Invalid Token");
   }
 
-  const accessToken = generateToken(
-    { userId, sessionId },
-    env.JWT_SECRET,
-    ACCESS_TOKEN_EXPIRES_IN,
-  );
+  const accessToken = generateToken({ userId, sessionId }, env.JWT_SECRET, ACCESS_TOKEN_EXPIRES_IN);
 
   // Rotate refresh token if it's half expired
   if (isTokenHalfExpired(exp * 1000, iat * 1000)) {
@@ -202,12 +181,14 @@ export const refresh_token = wrapAsync(async (req: Request, res: Response) => {
   res.status(201).json({
     message: "Token refreshed successfully",
     token: accessToken,
-    user: user ? {
-      name: user.name,
-      email: user.email,
-      profilePic: user.profilePic,
-      role: user.role,
-    } : null,
+    user: user
+      ? {
+          name: user.name,
+          email: user.email,
+          profilePic: user.profilePic,
+          role: user.role,
+        }
+      : null,
   });
 });
 
