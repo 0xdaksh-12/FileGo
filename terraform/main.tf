@@ -100,7 +100,7 @@ resource "google_compute_firewall" "default" {
 
   allow {
     protocol = "tcp"
-    ports    = ["22", "80", "443", "3000"]
+    ports    = ["22", "80", "443"]
   }
 
   source_ranges = ["0.0.0.0/0"]
@@ -133,97 +133,18 @@ resource "google_compute_instance" "server_vm" {
     scopes = ["cloud-platform"]
   }
 
-  metadata_startup_script = <<-EOT
-    #!/bin/bash
-    set -e
-
-    # Install dependencies
-    apt-get update
-    apt-get install -y git curl apt-transport-https ca-certificates gnupg lsb-release nginx python3-certbot-nginx
-
-    # Install Google Cloud SDK (for gcloud secrets)
-    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-    apt-get update && apt-get install -y google-cloud-sdk
-
-    # Install Docker and Docker Compose Plugin
-    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-    apt-get update
-    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
-    # Clone code
-    git clone https://github.com/${var.github_repo}.git /opt/filego
-    cd /opt/filego
-    
-    # Helper to fetch secrets
-    get_secret() {
-      gcloud secrets versions access latest --secret="\$1"
-    }
-
-    # Generate server .env
-    cat <<EOF > server/.env
-PORT=3000
-NODE_ENV=production
-MONGO_URL=\$(get_secret "MONGO_URL")
-JWT_SECRET=\$(get_secret "JWT_SECRET")
-JWT_REFRESH_SECRET=\$(get_secret "JWT_REFRESH_SECRET")
-AWS_ACCESS_KEY_ID=\$(get_secret "AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY=\$(get_secret "AWS_SECRET_ACCESS_KEY")
-AWS_REGION=${var.aws_region}
-AWS_BUCKET_NAME=${aws_s3_bucket.filego_uploads.bucket}
-CLIENT_URL=https://${var.domain_name}
-GOOGLE_CLIENT_ID=\$(get_secret "GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET=\$(get_secret "GOOGLE_CLIENT_SECRET")
-BETTER_STACK_SOURCE_TOKEN=\$(get_secret "BETTER_STACK_TOKEN")
-EOF
-
-    # Generate client .env
-    cat <<EOF > client/.env
-VITE_API_URL=/api
-EOF
-
-    # Start the application
-    export VITE_API_URL=/api
-    docker compose up -d --build
-
-    # Configure Host Nginx
-    cat <<'EOF_NGINX' > /etc/nginx/sites-available/filego
-server {
-    listen 80;
-    server_name DOMAIN_NAME_PLACEHOLDER;
-
-    location / {
-        proxy_pass http://localhost:8080;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /api/ {
-        proxy_pass http://localhost:3000/;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-EOF_NGINX
-    
-    sed -i "s/DOMAIN_NAME_PLACEHOLDER/${var.domain_name}/g" /etc/nginx/sites-available/filego
-    
-    rm -f /etc/nginx/sites-enabled/default
-    ln -s /etc/nginx/sites-available/filego /etc/nginx/sites-enabled/
-    systemctl restart nginx
-
-    # Run Certbot
-    certbot --nginx -d ${var.domain_name} -m ${var.certbot_email} --agree-tos --non-interactive || true
-  EOT
+  metadata_startup_script = templatefile("${path.module}/scripts/startup.sh.tpl", {
+    github_repo   = var.github_repo
+    aws_region    = var.aws_region
+    bucket_name   = aws_s3_bucket.filego_uploads.bucket
+    domain_name   = var.domain_name
+    certbot_email = var.certbot_email
+  })
 
   depends_on = [
     google_secret_manager_secret_version.filego_secrets_version,
     google_project_service.apis
   ]
 }
+
 

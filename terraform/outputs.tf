@@ -9,6 +9,6 @@ output "s3_bucket_name" {
 }
 
 output "server_url" {
-  value       = "http://${google_compute_instance.server_vm.network_interface.0.access_config.0.nat_ip}:3000"
-  description = "The backend API URL"
+  value       = "https://${var.domain_name}"
+  description = "The final application URL"
 }

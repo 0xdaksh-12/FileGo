@@ -4,59 +4,22 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: filego-server
-    ports:
-      - "3000:3000"
+    # Not exposed externally — nginx proxies /api/* to this service internally.
     env_file:
       - ./server/.env
-    environment:
-      # For local docker networking, connects to the 'mongo' service unless
-      # MONGO_URL is explicitly set in .env to an external DB like Atlas
-      - MONGO_URL=${MONGO_URL:-mongodb://mongo:27017/filego?replicaSet=rs0}
-    depends_on:
-      mongo:
-        # INFRA-1: Wait for mongo to be healthy before starting, not just started
-        condition: service_healthy
     restart: unless-stopped
 
-  client:
+  nginx:
     build:
-      context: ./client
-      dockerfile: Dockerfile
+      # Context is project root so the Dockerfile can access both client/ and nginx/
+      context: ./
+      dockerfile: nginx/Dockerfile
       args:
-        # INFRA-3: Pass as a build ARG so Vite can bake it into the static bundle
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000}
-    container_name: filego-client
+        # VITE_API_URL is baked into the static bundle at build time
+        - VITE_API_URL=/api
+    container_name: filego-nginx
     ports:
       - "8080:80"
     depends_on:
       - server
     restart: unless-stopped
-
-  mongo:
-    image: mongo:7
-    container_name: filego-mongo
-    # INFRA-4: Don't expose MongoDB port to the host; accessible within the Docker network only
-    volumes:
-      - mongo-data:/data/db
-    restart: unless-stopped
-    # Start with replica set support
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--quiet", "--logpath", "/dev/null"]
-    healthcheck:
-      test: >
-        mongosh --eval "
-          try {
-            rs.status().ok
-          } catch (e) {
-            rs.initiate({
-              _id: 'rs0',
-              members: [{ _id: 0, host: 'mongo:27017' }]
-            }).ok || rs.status().ok
-          }
-        "
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-volumes:
-  mongo-data:
