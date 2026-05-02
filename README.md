@@ -51,10 +51,11 @@ cp server/.env.example server/.env
 # Fill in your AWS, MongoDB, and JWT secrets in server/.env
 ```
 
-### 3. Observability
-FileGo integrates with **Better Stack** (formerly Logtail) for structured cloud logging.
-- Get a source token from [Better Stack](https://betterstack.com/).
-- Add `BETTER_STACK_SOURCE_TOKEN` to your `server/.env`.
+### 3. Observability & Auth
+- **Better Stack**: Get a source token from [Better Stack](https://betterstack.com/) and add `BETTER_STACK_SOURCE_TOKEN` to `server/.env`.
+- **Google OAuth**: Create a project in the [Google Cloud Console](https://console.cloud.google.com/), obtain a **Client ID** and **Client Secret**.
+    - Add both to `server/.env`.
+    - Add only the **Client ID** to `client/.env`.
 
 ### 4. Running Locally
 ```bash
