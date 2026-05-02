@@ -40,7 +40,8 @@ resource "google_project_service" "apis" {
   for_each = toset([
     "secretmanager.googleapis.com",
     "iam.googleapis.com",
-    "compute.googleapis.com"
+    "compute.googleapis.com",
+    "cloudresourcemanager.googleapis.com"
   ])
   service            = each.key
   disable_on_destroy = false
