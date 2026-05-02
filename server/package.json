@@ -30,6 +30,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.17.2",
     "swagger-ui-express": "^5.0.1",
+    "uuid": "^14.0.0",
     "winston": "^3.19.0",
     "yamljs": "^0.3.0",
     "zod": "^4.4.2"
