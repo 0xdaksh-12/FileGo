@@ -1,0 +1,246 @@
+openapi: 3.0.0
+info:
+  title: FileGo API
+  version: 1.0.0
+  description: |
+    API documentation for the FileGo file sharing platform.
+    
+    ### Authentication
+    FileGo uses a hybrid JWT strategy:
+    1. **Access Token**: Short-lived (15m), sent in the `Authorization: Bearer <token>` header.
+    2. **Refresh Token**: Long-lived (7d), sent automatically via HTTP-only secure cookies.
+    
+    Visit `/api/auth/refresh` to obtain a new access token when it expires.
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+tags:
+  - name: Auth
+    description: User registration and session management
+  - name: Files
+    description: File upload, listing, and download operations
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        name: { type: string }
+        email: { type: string, format: email }
+        profilePic: { type: string }
+        role: { type: string, enum: [user, admin] }
+    File:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        size: { type: integer, description: File size in bytes }
+        mimeType: { type: string }
+        downloadCount: { type: integer }
+        uploadedAt: { type: string, format: date-time }
+        expiresAt: { type: string, format: date-time }
+        hasPassword: { type: boolean }
+        isActive: { type: boolean }
+
+paths:
+  # --- AUTH ---
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string }
+                email: { type: string }
+                password: { type: string, minLength: 8 }
+      responses:
+        '201': { description: Created }
+        '409': { description: User already exists }
+
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and get token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200': { description: Success }
+        '401': { description: Invalid credentials }
+
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh Access Token using Http-Only Cookie
+      responses:
+        '201':
+          description: New token generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token: { type: string }
+                  user: { $ref: '#/components/schemas/User' }
+        '204': { description: No refresh token cookie found }
+
+  /api/auth/user:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user: { $ref: '#/components/schemas/User' }
+
+  # --- FILES ---
+  /api/files/upload-url:
+    post:
+      tags: [Files]
+      summary: Generate S3 presigned upload URL
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, type, size]
+              properties:
+                name: { type: string }
+                type: { type: string, example: image/png }
+                size: { type: integer, example: 1024576 }
+                expiresAt: { type: string, enum: [1h, 1d, 7d, 30d, never] }
+                password: { type: string, minLength: 6 }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string, format: uuid }
+                  uploadUrl: { type: string, format: uri }
+
+  /api/files:
+    get:
+      tags: [Files]
+      summary: List user files (Paginated)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: cursor
+          in: query
+          schema: { type: string, description: Compound cursor from previous response }
+      responses:
+        '200':
+          description: List of files
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files: { type: array, items: { $ref: '#/components/schemas/File' } }
+                  nextCursor: { type: string, nullable: true }
+
+  /api/files/stats:
+    get:
+      tags: [Files]
+      summary: Get user storage and download stats
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200':
+          description: Stats summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalUploads: { type: integer }
+                  totalDownloads: { type: integer }
+                  activeFiles: { type: integer }
+                  storageUsed: { type: string, example: "125.4 MB" }
+
+  /api/files/{id}:
+    get:
+      tags: [Files]
+      summary: Get public metadata for a file
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/File' }
+        '404': { description: Not found }
+    delete:
+      tags: [Files]
+      summary: Delete a file
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Deleted }
+        '401': { description: Unauthorized ownership }
+
+  /api/files/{id}/download:
+    post:
+      tags: [Files]
+      summary: Generate S3 download URL (handles password verification)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password: { type: string }
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  downloadUrl: { type: string, format: uri }
+        '401': { description: Password required or invalid }
+        '404': { description: File not found }
+        '429': { description: Too many attempts (Rate limited) }
