@@ -15,19 +15,17 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 18
+    - name: Use Node.js 22
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 22
         cache: 'npm'
         cache-dependency-path: './server/package-lock.json'
     - run: npm ci
     - run: npm run lint
-      continue-on-error: true # Make this strict later
+      continue-on-error: true # lint is advisory; build and test are hard gates
     - run: npm run build
-      continue-on-error: true
     - run: npm test
-      continue-on-error: true
 
   client-test:
     runs-on: ubuntu-latest
@@ -37,19 +35,17 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 18
+    - name: Use Node.js 22
       uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 22
         cache: 'npm'
         cache-dependency-path: './client/package-lock.json'
     - run: npm ci
     - run: npm run lint
       continue-on-error: true
     - run: npm run build
-      continue-on-error: true
     - run: npm test
-      continue-on-error: true
 
   terraform-check:
     runs-on: ubuntu-latest
