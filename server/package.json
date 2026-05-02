@@ -16,6 +16,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.890.0",
     "@aws-sdk/s3-request-presigner": "^3.890.0",
+    "@logtail/node": "^0.5.8",
     "@logtail/winston": "^0.5.8",
     "axios": "^1.15.2",
     "bcrypt": "^6.0.0",

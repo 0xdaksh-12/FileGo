@@ -13,6 +13,9 @@ importers:
       "@aws-sdk/s3-request-presigner":
         specifier: ^3.890.0
         version: 3.1041.0
+      "@logtail/node":
+        specifier: ^0.5.8
+        version: 0.5.8
       "@logtail/winston":
         specifier: ^0.5.8
         version: 0.5.8(winston@3.19.0)
