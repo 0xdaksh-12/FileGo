@@ -11,9 +11,7 @@ const envSchema = z.object({
   AWS_REGION: z.string(),
   CLIENT_URL: z.string().url(),
   PORT: z.coerce.number().default(3000),
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   GOOGLE_CLIENT_ID: z.string().optional(),
   LOG_LEVEL: z.string().default("info"),
   BETTER_STACK_SOURCE_TOKEN: z.string().optional(),

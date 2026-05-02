@@ -5,21 +5,56 @@ variable "gcp_project_id" {
 
 variable "gcp_region" {
   type        = string
-  default     = "us-central1"
+  default     = "asia-south1"
 }
 
 variable "aws_region" {
   type        = string
-  default     = "us-east-1"
-}
-
-variable "vercel_api_token" {
-  type        = string
-  sensitive   = true
+  default     = "ap-south-1"
 }
 
 variable "github_repo" {
   type        = string
-  description = "GitHub repository for Vercel deployment (e.g., 0xflame-7/FileGo)"
+  description = "GitHub repository for backend deployment"
   default     = "0xflame-7/FileGo"
+}
+
+
+variable "mongo_url" {
+  type      = string
+  sensitive = true
+}
+
+variable "jwt_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "jwt_refresh_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "google_client_id" {
+  type      = string
+}
+
+variable "google_client_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "aws_access_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "aws_secret_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "better_stack_token" {
+  type      = string
+  sensitive = true
 }
