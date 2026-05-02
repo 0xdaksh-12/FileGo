@@ -129,18 +129,33 @@ resource "google_compute_instance" "server_vm" {
 
   metadata_startup_script = <<-EOT
     #!/bin/bash
-    apt-get update
-    apt-get install -y git curl docker.io docker-compose
-    systemctl start docker
-    systemctl enable docker
+    set -e
 
+    # Install dependencies
+    apt-get update
+    apt-get install -y git curl apt-transport-https ca-certificates gnupg lsb-release
+
+    # Install Google Cloud SDK (for gcloud secrets)
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+    apt-get update && apt-get install -y google-cloud-sdk
+
+    # Install Docker and Docker Compose Plugin
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    apt-get update
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+    # Clone code
     git clone https://github.com/${var.github_repo}.git /opt/filego
     cd /opt/filego
     
+    # Helper to fetch secrets
     get_secret() {
       gcloud secrets versions access latest --secret="$1"
     }
 
+    # Generate .env
     cat <<EOF > server/.env
 PORT=3000
 NODE_ENV=production
@@ -156,7 +171,9 @@ GOOGLE_CLIENT_ID=$(get_secret "GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET=$(get_secret "GOOGLE_CLIENT_SECRET")
 BETTER_STACK_SOURCE_TOKEN=$(get_secret "BETTER_STACK_TOKEN")
 EOF
-    docker-compose up -d server
+
+    # Start the server
+    docker compose up -d server
   EOT
 
   depends_on = [

@@ -16,7 +16,7 @@ variable "aws_region" {
 variable "github_repo" {
   type        = string
   description = "GitHub repository for backend deployment"
-  default     = "0xflame-7/FileGo"
+  default     = "0xdaksh-12/FileGo"
 }
 
 
