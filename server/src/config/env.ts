@@ -12,12 +12,10 @@ const envSchema = z.object({
   CLIENT_URL: z.string().url(),
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
-  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
   LOG_LEVEL: z.string().default("info"),
   BETTER_STACK_SOURCE_TOKEN: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
-  BETTER_STACK_API_TOKEN: z.string().optional(),
-  BETTER_STACK_UPTIME_URL: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().min(1, "GOOGLE_CLIENT_SECRET is required"),
 });
 
 const parsed = envSchema.safeParse(process.env);

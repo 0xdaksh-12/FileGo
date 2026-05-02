@@ -31,7 +31,17 @@ app.use(
         connectSrc: ["'self'", "https://*.amazonaws.com"],
       },
     },
-  })
+  }),
+);
+
+// CORS must come before rate limiters so preflight OPTIONS requests
+// are never blocked before CORS headers are attached (fixes HIGH-5).
+app.use(
+  cors({
+    origin: env.CLIENT_URL, // explicit allowlist — not a wildcard (fixes CRIT-3)
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
 );
 
 const authLimiter = rateLimit({
@@ -47,14 +57,6 @@ const authLimiter = rateLimit({
 
 app.use("/api/auth", authLimiter);
 
-app.use(
-  cors({
-    origin: env.CLIENT_URL,
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
-);
-
 // Request Handler
 app.use(requestHandler);
 
@@ -63,10 +65,12 @@ try {
   const swaggerDocument = YAML.load(path.join(__dirname, "../swagger.yaml"));
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } catch (e) {
-  logger.warn(
-    "Swagger documentation not found or failed to load. Skipping /api-docs.",
-  );
+  logger.warn("Swagger documentation not found or failed to load. Skipping /api-docs.");
 }
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
 
 app.use("/api/auth", authRouter);
 app.use("/api/files", fileRouter);

@@ -65,7 +65,7 @@ export const register_user = wrapAsync(async (req: Request, res: Response) => {
   });
 
   const { accessToken, refreshToken } = await createAuthSession({
-    userId: (user._id as any).toString(),
+    userId: (user._id as Types.ObjectId).toString(),
     userAgent: req.headers["user-agent"] || "unknown",
     ip: req.ip || "unknown",
   });
@@ -93,7 +93,7 @@ export const login_user = wrapAsync(async (req: Request, res: Response) => {
   }
 
   const { accessToken, refreshToken } = await createAuthSession({
-    userId: (user._id as any).toString(),
+    userId: (user._id as Types.ObjectId).toString(),
     userAgent: req.headers["user-agent"] || "unknown",
     ip: req.ip || "unknown",
   });
@@ -130,7 +130,7 @@ export const google_auth = wrapAsync(async (req: Request, res: Response) => {
   }
 
   const { accessToken, refreshToken } = await createAuthSession({
-    userId: (user._id as any).toString(),
+    userId: (user._id as Types.ObjectId).toString(),
     userAgent: req.headers["user-agent"] || "unknown",
     ip: req.ip || "unknown",
   });
@@ -168,7 +168,7 @@ export const refresh_token = wrapAsync(async (req: Request, res: Response) => {
   if (isTokenHalfExpired(exp * 1000, iat * 1000)) {
     const refreshToken = generateToken(
       { userId, sessionId },
-      env.JWT_REFRESH_SECRET || env.JWT_SECRET,
+      env.JWT_REFRESH_SECRET,
       REFRESH_TOKEN_EXPIRES_IN,
     );
     const hashedToken = await hashed(refreshToken);
@@ -178,7 +178,7 @@ export const refresh_token = wrapAsync(async (req: Request, res: Response) => {
 
   const user = await getUserById(userId);
 
-  res.status(201).json({
+  res.status(200).json({
     message: "Token refreshed successfully",
     token: accessToken,
     user: user
