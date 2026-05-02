@@ -19,7 +19,6 @@ variable "github_repo" {
   default     = "0xdaksh-12/FileGo"
 }
 
-
 variable "mongo_url" {
   type      = string
   sensitive = true
@@ -57,4 +56,16 @@ variable "aws_secret_key" {
 variable "better_stack_token" {
   type      = string
   sensitive = true
+}
+
+variable "domain_name" {
+  type        = string
+  description = "The domain name for the application"
+  default     = "filego.duckdns.org"
+}
+
+variable "certbot_email" {
+  type        = string
+  description = "The email address for Let's Encrypt registration"
+  default     = "0xdaksh.12@gmail.com"
 }
