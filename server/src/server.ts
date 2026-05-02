@@ -10,7 +10,7 @@ import axios from "axios";
  * Pings the heartbeat URL every minute if configured.
  */
 function startHeartbeat() {
-  const url = env.BETTER_STACK_UPTIME_URL;
+  const url = env.BETTER_STACK_SOURCE_TOKEN;
   if (!url) return;
 
   const ping = async () => {
