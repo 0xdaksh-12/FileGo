@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from 'mongoose';
+import { Schema, model, Document, Types } from "mongoose";
 
 export interface ISession extends Document {
   userId: Types.ObjectId;
@@ -14,7 +14,7 @@ const sessionSchema = new Schema<ISession>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     valid: {
@@ -36,13 +36,11 @@ const sessionSchema = new Schema<ISession>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-// Align with refresh token expiry (7d) + 1 hour grace period
-sessionSchema.index({ createdAt: 1 }, { expireAfterSeconds: (60 * 60 * 24 * 7) + 3600 }); 
+sessionSchema.index({ updatedAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 7 + 3600 });
 
-
-const Session = model<ISession>('Session', sessionSchema);
+const Session = model<ISession>("Session", sessionSchema);
 
 export default Session;

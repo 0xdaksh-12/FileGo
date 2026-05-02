@@ -63,7 +63,7 @@ paths:
               properties:
                 name: { type: string }
                 email: { type: string }
-                password: { type: string, minLength: 8 }
+                password: { type: string, minLength: 6 }
       responses:
         '201': { description: Created }
         '409': { description: User already exists }

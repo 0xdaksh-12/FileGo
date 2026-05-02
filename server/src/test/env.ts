@@ -8,3 +8,5 @@ process.env.CLIENT_URL = "http://localhost:3000";
 process.env.MONGO_URL = "mongodb://localhost:27017/test";
 process.env.NODE_ENV = "test";
 process.env.PORT = "3001";
+process.env.GOOGLE_CLIENT_ID = "test-google-client-id.apps.googleusercontent.com";
+process.env.GOOGLE_CLIENT_SECRET = "test-google-client-secret";

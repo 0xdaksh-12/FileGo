@@ -29,7 +29,7 @@ export const getUploadUrl = wrapAsync(async (req: Request, res: Response) => {
     ContentType: type,
   });
 
-  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
+  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
   const parsedExpiry = parseUploadOptions(expiry);
   const hashedPassword = password ? await hashed(password) : undefined;
 
@@ -98,7 +98,7 @@ export const downloadFileUrl = wrapAsync(async (req: Request, res: Response) => 
     ResponseContentType: fileWithPassword.mimeType,
   });
 
-  const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
+  const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
   res.json({ downloadUrl });
 });
 
