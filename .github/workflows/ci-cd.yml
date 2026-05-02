@@ -52,5 +52,5 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-version: latest
-          working-directory: ./client
+          working-directory: ./
           vercel-args: ${{ github.ref == 'refs/heads/deploy' && '--prod' || '' }}
