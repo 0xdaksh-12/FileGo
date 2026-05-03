@@ -1,3 +1,4 @@
+# FileGo Production Infrastructure
 # AWS
 resource "aws_s3_bucket" "filego_uploads" {
   bucket = "filego-uploads-daksh"
