@@ -4,13 +4,13 @@ variable "gcp_project_id" {
 }
 
 variable "gcp_region" {
-  type        = string
-  default     = "asia-south1"
+  type    = string
+  default = "asia-south1"
 }
 
 variable "aws_region" {
-  type        = string
-  default     = "ap-south-1"
+  type    = string
+  default = "ap-south-1"
 }
 
 variable "github_repo" {
@@ -35,7 +35,7 @@ variable "jwt_refresh_secret" {
 }
 
 variable "google_client_id" {
-  type      = string
+  type = string
 }
 
 variable "google_client_secret" {
