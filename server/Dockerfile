@@ -22,8 +22,9 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --prod --frozen-lockfile
 
-# Copy built artifacts from builder
+# Copy built artifacts and static assets from builder
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/swagger.yaml ./swagger.yaml
 
 # Standard security practice: run as non-root user
 USER node
