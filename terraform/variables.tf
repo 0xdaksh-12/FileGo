@@ -19,44 +19,6 @@ variable "github_repo" {
   default     = "0xdaksh-12/FileGo"
 }
 
-variable "mongo_url" {
-  type      = string
-  sensitive = true
-}
-
-variable "jwt_secret" {
-  type      = string
-  sensitive = true
-}
-
-variable "jwt_refresh_secret" {
-  type      = string
-  sensitive = true
-}
-
-variable "google_client_id" {
-  type = string
-}
-
-variable "google_client_secret" {
-  type      = string
-  sensitive = true
-}
-
-variable "aws_access_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "aws_secret_key" {
-  type      = string
-  sensitive = true
-}
-
-variable "better_stack_token" {
-  type      = string
-  sensitive = true
-}
 
 variable "domain_name" {
   type        = string

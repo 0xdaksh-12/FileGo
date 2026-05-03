@@ -44,20 +44,21 @@ resource "google_project_service" "apis" {
 }
 
 locals {
-  secrets = {
-    MONGO_URL             = var.mongo_url
-    JWT_SECRET            = var.jwt_secret
-    JWT_REFRESH_SECRET    = var.jwt_refresh_secret
-    GOOGLE_CLIENT_ID      = var.google_client_id
-    GOOGLE_CLIENT_SECRET  = var.google_client_secret
-    AWS_ACCESS_KEY_ID     = var.aws_access_key
-    AWS_SECRET_ACCESS_KEY = var.aws_secret_key
-    BETTER_STACK_TOKEN    = var.better_stack_token
-  }
+  secret_names = [
+    "MONGO_URL",
+    "JWT_SECRET",
+    "JWT_REFRESH_SECRET",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "BETTER_STACK_TOKEN",
+  ]
 }
 
+
 resource "google_secret_manager_secret" "filego_secrets" {
-  for_each  = local.secrets
+  for_each  = toset(local.secret_names)
   secret_id = each.key
 
   replication {
@@ -65,6 +66,20 @@ resource "google_secret_manager_secret" "filego_secrets" {
   }
 
   depends_on = [google_project_service.apis]
+}
+
+
+resource "google_service_account" "ci_sa" {
+  account_id   = "filego-ci-sa"
+  display_name = "FileGo CI Service Account"
+
+  depends_on = [google_project_service.apis]
+}
+
+resource "google_project_iam_member" "ci_secret_admin" {
+  project = var.gcp_project_id
+  role    = "roles/secretmanager.admin"
+  member  = "serviceAccount:${google_service_account.ci_sa.email}"
 }
 
 resource "google_service_account" "server_sa" {
