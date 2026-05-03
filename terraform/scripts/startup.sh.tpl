@@ -43,7 +43,7 @@ cd /opt/filego
 
 # Fetch secrets and generate server .env
 get_secret() {
-  gcloud secrets versions access latest --secret="${1}"
+  gcloud secrets versions access latest --secret="$${1}"
 }
 
 export MONGO_URL=$(get_secret "MONGO_URL")
