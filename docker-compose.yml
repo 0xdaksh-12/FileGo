@@ -1,8 +1,6 @@
 services:
   server:
-    build:
-      context: ./server
-      dockerfile: Dockerfile
+    image: 0xdaksh12/filego-server:latest
     container_name: filego-server
     # Not exposed externally — nginx proxies /api/* to this service internally.
     env_file:
@@ -10,13 +8,7 @@ services:
     restart: unless-stopped
 
   nginx:
-    build:
-      # Context is project root so the Dockerfile can access both client/ and nginx/
-      context: ./
-      dockerfile: nginx/Dockerfile
-      args:
-        # VITE_API_URL is baked into the static bundle at build time
-        - VITE_API_URL=/api
+    image: 0xdaksh12/filego-nginx:latest
     container_name: filego-nginx
     ports:
       - "8080:80"

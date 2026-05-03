@@ -1,0 +1,41 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [deploy]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push server
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/filego-server:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push nginx (with client)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./nginx/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/filego-nginx:latest
+          build-args: |
+            VITE_API_URL=/api
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
