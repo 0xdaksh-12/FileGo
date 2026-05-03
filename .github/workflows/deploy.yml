@@ -18,6 +18,7 @@ jobs:
   terraform:
     name: "Terraform Deploy"
     runs-on: ubuntu-latest
+
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -33,15 +34,27 @@ jobs:
       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v3
 
       - name: Terraform Init
         run: terraform init
         working-directory: ./terraform
+
+      - name: Import Existing Resources
+        working-directory: ./terraform
+        run: |
+          terraform import google_service_account.server_sa \
+            projects/${{ secrets.GCP_PROJECT_ID }}/serviceAccounts/filego-server-sa@${{ secrets.GCP_PROJECT_ID }}.iam.gserviceaccount.com || true
+
+          terraform import google_compute_address.server_ip \
+            projects/${{ secrets.GCP_PROJECT_ID }}/regions/asia-south1/addresses/filego-server-ip || true
+
+          for s in MONGO_URL JWT_SECRET JWT_REFRESH_SECRET GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY BETTER_STACK_TOKEN; do
+            terraform import "google_secret_manager_secret.filego_secrets[\"$s\"]" \
+            "projects/${{ secrets.GCP_PROJECT_ID }}/secrets/$s" || true
+          done
 
       - name: Terraform Plan
         run: terraform plan -input=false
