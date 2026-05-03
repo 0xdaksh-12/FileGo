@@ -107,7 +107,18 @@ resource "google_compute_address" "server_ip" {
 
 
 resource "terraform_data" "startup_hash" {
-  input = filesha256("${path.module}/scripts/startup.sh.tpl")
+  input = sha256(
+    templatefile(
+      "${path.module}/scripts/startup.sh.tpl",
+      {
+        github_repo   = var.github_repo
+        aws_region    = var.aws_region
+        bucket_name   = aws_s3_bucket.filego_uploads.bucket
+        domain_name   = var.domain_name
+        certbot_email = var.certbot_email
+      }
+    )
+  )
 }
 
 
