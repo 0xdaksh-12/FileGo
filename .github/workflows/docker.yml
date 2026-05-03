@@ -70,8 +70,17 @@ jobs:
           for secret in "${secrets[@]}"; do
             value="${!secret}"
             if [ -n "$value" ]; then
+              # Check if a version already exists and if it matches the new value
+              if gcloud secrets versions describe latest --secret="$secret" >/dev/null 2>&1; then
+                current_value=$(gcloud secrets versions access latest --secret="$secret")
+                if [ "$value" == "$current_value" ]; then
+                  echo "$secret is already up to date. Skipping."
+                  continue
+                fi
+              fi
+
               echo -n "$value" | gcloud secrets versions add "$secret" --data-file=-
-              echo "Successfully synced $secret to GCP"
+              echo "Successfully synced new version of $secret to GCP"
             else
               echo "Error: $secret is empty in GitHub Secrets. Skipping."
             fi
