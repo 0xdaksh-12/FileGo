@@ -39,3 +39,49 @@ jobs:
             VITE_API_URL=/api
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  sync-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Sync Secrets to GCP
+        run: |
+          secrets=(
+            "MONGO_URL"
+            "JWT_SECRET"
+            "JWT_REFRESH_SECRET"
+            "AWS_ACCESS_KEY_ID"
+            "AWS_SECRET_ACCESS_KEY"
+            "GOOGLE_CLIENT_ID"
+            "GOOGLE_CLIENT_SECRET"
+            "BETTER_STACK_TOKEN"
+          )
+
+          for secret in "${secrets[@]}"; do
+            value="${!secret}"
+            if [ -n "$value" ]; then
+              echo -n "$value" | gcloud secrets versions add "$secret" --data-file=-
+              echo "Successfully synced $secret to GCP"
+            else
+              echo "Error: $secret is empty in GitHub Secrets. Skipping."
+            fi
+          done
+        env:
+          MONGO_URL: ${{ secrets.MONGO_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          BETTER_STACK_TOKEN: ${{ secrets.BETTER_STACK_TOKEN }}
