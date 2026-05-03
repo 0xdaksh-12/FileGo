@@ -17,6 +17,7 @@ import fileRouter from "./routes/file.Router";
 import requestHandler from "./middleware/requestHandler";
 
 const app = express();
+app.set("trust proxy", 1);
 
 app.use(cookieParser());
 app.use(express.json());

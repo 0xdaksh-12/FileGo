@@ -15,6 +15,7 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().min(1, "GOOGLE_CLIENT_ID is required"),
   LOG_LEVEL: z.string().default("info"),
   BETTER_STACK_SOURCE_TOKEN: z.string().optional(),
+  BETTER_STACK_UPTIME_URL: z.string().url().optional(),
   GOOGLE_CLIENT_SECRET: z.string().min(1, "GOOGLE_CLIENT_SECRET is required"),
 });
 
