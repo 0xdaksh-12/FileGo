@@ -57,6 +57,7 @@ export CLIENT_URL="https://${domain_name}"
 export GOOGLE_CLIENT_ID=$(get_secret "GOOGLE_CLIENT_ID")
 export GOOGLE_CLIENT_SECRET=$(get_secret "GOOGLE_CLIENT_SECRET")
 export BETTER_STACK_SOURCE_TOKEN=$(get_secret "BETTER_STACK_TOKEN")
+export BETTER_STACK_UPTIME_URL=$(get_secret "BETTER_STACK_UPTIME_URL")
 
 envsubst < terraform/scripts/env.template > server/.env
 

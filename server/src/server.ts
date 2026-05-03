@@ -10,7 +10,7 @@ import axios from "axios";
  * Pings the heartbeat URL every minute if configured.
  */
 function startHeartbeat() {
-  const url = env.BETTER_STACK_SOURCE_TOKEN;
+  const url = env.BETTER_STACK_UPTIME_URL;
   if (!url) return;
 
   const ping = async () => {
@@ -27,12 +27,17 @@ function startHeartbeat() {
   logger.info("Better Stack Heartbeat started");
 }
 
-connectDB().then(() => {
-  startStorageReclaimWatcher();
-  startHeartbeat();
-});
+connectDB()
+  .then(() => {
+    startStorageReclaimWatcher();
+    startHeartbeat();
 
-const PORT = env.PORT;
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+    const PORT = env.PORT;
+    app.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    logger.error("Failed to start server due to DB connection error", { err });
+    process.exit(1);
+  });
