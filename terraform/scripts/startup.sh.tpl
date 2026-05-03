@@ -16,7 +16,7 @@ apt-get install -y \
 
 # Google Cloud SDK (for Secret Manager access)
 curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-  | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+  | gpg --dearmor --yes -o /usr/share/keyrings/cloud.google.gpg
 echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] \
   https://packages.cloud.google.com/apt cloud-sdk main" \
   | tee /etc/apt/sources.list.d/google-cloud-sdk.list
@@ -24,13 +24,14 @@ apt-get update && apt-get install -y google-cloud-sdk
 
 # Docker Engine + Compose Plugin
 curl -fsSL https://download.docker.com/linux/debian/gpg \
-  | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) \
-  signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
-  https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
+  | gpg --dearmor --yes -o /usr/share/keyrings/docker.gpg
+
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
   | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
 usermod -aG docker daksh || true
 
 # Clone repository
@@ -60,7 +61,7 @@ export BETTER_STACK_SOURCE_TOKEN=$(get_secret "BETTER_STACK_TOKEN")
 envsubst < terraform/scripts/env.template > server/.env
 
 # Start application (root-level nginx handles routing)
-docker compose up -d --build
+docker compose -f docker-compose.yml up -d --build
 
 # Configure host Nginx as a thin TLS-terminating reverse proxy.
 # All routing logic lives inside the Docker nginx container.
