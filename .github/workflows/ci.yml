@@ -28,8 +28,8 @@ jobs:
       - run: pnpm run lint
         continue-on-error: true
       - run: pnpm run build
-      - name: Install MongoDB binary
-        run: pnpm exec mongodb-memory-server install
+      - name: Pre-download MongoDB binary
+        run: node node_modules/mongodb-memory-server/postinstall.js
       - name: Run Server Tests
         run: pnpm test -- --runInBand
 
