@@ -90,13 +90,13 @@ resource "google_project_iam_member" "secret_accessor" {
 }
 
 resource "google_compute_network" "vpc_network" {
-  name                    = "filego-network"
+  name                    = "filego-network-${random_id.suffix.hex}"
   auto_create_subnetworks = true
   depends_on              = [google_project_service.apis]
 }
 
 resource "google_compute_firewall" "default" {
-  name    = "filego-firewall"
+  name    = "filego-firewall-${random_id.suffix.hex}"
   network = google_compute_network.vpc_network.name
 
   allow {
@@ -147,5 +147,3 @@ resource "google_compute_instance" "server_vm" {
     google_project_service.apis
   ]
 }
-
-
