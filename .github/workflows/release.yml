@@ -116,7 +116,7 @@ jobs:
             "AWS_SECRET_ACCESS_KEY"
             "GOOGLE_CLIENT_ID"
             "GOOGLE_CLIENT_SECRET"
-            "BETTER_STACK_TOKEN"
+            "BETTER_STACK_SOURCE_TOKEN"
             "BETTER_STACK_UPTIME_URL"
           )
 
@@ -144,7 +144,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          BETTER_STACK_TOKEN: ${{ secrets.BETTER_STACK_TOKEN }}
+          BETTER_STACK_SOURCE_TOKEN: ${{ secrets.BETTER_STACK_TOKEN }}
           BETTER_STACK_UPTIME_URL: ${{ secrets.BETTER_STACK_UPTIME_URL }}
 
   deploy-app:
