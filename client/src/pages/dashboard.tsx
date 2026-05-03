@@ -10,12 +10,10 @@ export default function Dashboard() {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Share files securely
-          </h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Share files securely</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Upload your files and get a secure link to share with anyone. Set
-            expiry dates and passwords for extra security.
+            Upload your files and get a secure link to share with anyone. Set expiry dates and
+            passwords for extra security.
           </p>
         </div>
 
@@ -30,13 +28,13 @@ export default function Dashboard() {
             <div className="md:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <i className="fas fa-share-alt text-white text-sm"></i>
+                  <span className="material-symbols-outlined text-white text-[20px]">share</span>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">FileGo</h3>
               </div>
               <p className="text-gray-600 mb-4">
-                Secure, fast, and reliable file sharing for everyone. Share
-                files up to 2GB with password protection and expiry dates.
+                Secure, fast, and reliable file sharing for everyone. Share files up to 2GB with
+                password protection and expiry dates.
               </p>
             </div>
 
