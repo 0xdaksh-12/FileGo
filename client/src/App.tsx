@@ -6,8 +6,6 @@ import Router from "@/routes/routes";
 import { useAuthStore } from "@/store/useAuthStore";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
-import { Analytics } from "@vercel/analytics/react";
-
 function App() {
   const bootstrap = useAuthStore((state) => state.bootstrap);
 
@@ -20,7 +18,6 @@ function App() {
       <TooltipProvider>
         <Toaster position="bottom-right" reverseOrder={false} />
         <Router />
-        <Analytics />
       </TooltipProvider>
     </GoogleOAuthProvider>
   );

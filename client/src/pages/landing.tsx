@@ -11,11 +11,11 @@ export default function Landing() {
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center space-x-3">
               <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-lg flex items-center justify-center">
-                <i className="fas fa-share-alt text-white text-xs sm:text-sm"></i>
+                <span className="material-symbols-outlined text-white text-[18px] sm:text-[22px]">
+                  share
+                </span>
               </div>
-              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
-                FileGo
-              </h1>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">FileGo</h1>
             </div>
 
             <Button
@@ -34,9 +34,8 @@ export default function Landing() {
             Share files securely and easily
           </h2>
           <p className="text-base sm:text-xl text-gray-600 max-w-3xl mx-auto mb-8">
-            Upload your files and get secure, shareable links with password
-            protection and automatic expiry. Perfect for professionals who need
-            reliable file sharing.
+            Upload your files and get secure, shareable links with password protection and automatic
+            expiry. Perfect for professionals who need reliable file sharing.
           </p>
           <Button
             onClick={() => setLocation("/auth")}
@@ -51,14 +50,16 @@ export default function Landing() {
           <Card>
             <CardContent className="p-[6px] sm:p-8 text-center">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <i className="fas fa-shield-alt text-primary text-lg sm:text-2xl"></i>
+                <span className="material-symbols-outlined text-primary text-[24px] sm:text-[32px]">
+                  shield_lock
+                </span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-4">
                 Secure by Default
               </h3>
               <p className="text-sm sm:text-base text-gray-600">
-                Password protection and automatic expiry ensure your files stay
-                secure and don't live forever on the internet.
+                Password protection and automatic expiry ensure your files stay secure and don't
+                live forever on the internet.
               </p>
             </CardContent>
           </Card>
@@ -66,14 +67,16 @@ export default function Landing() {
           <Card>
             <CardContent className="p-[6px] sm:p-8 text-center">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <i className="fas fa-rocket text-green-600 text-lg sm:text-2xl"></i>
+                <span className="material-symbols-outlined text-green-600 text-[24px] sm:text-[32px]">
+                  bolt
+                </span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-4">
                 Lightning Fast
               </h3>
               <p className="text-sm sm:text-base text-gray-600">
-                Upload files up to 2GB quickly and get instant shareable links.
-                No waiting around or complex setup required.
+                Upload files up to 2GB quickly and get instant shareable links. No waiting around or
+                complex setup required.
               </p>
             </CardContent>
           </Card>
@@ -81,14 +84,16 @@ export default function Landing() {
           <Card>
             <CardContent className="p-[6px] sm:p-8 text-center">
               <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4 sm:mb-6">
-                <i className="fas fa-chart-line text-purple-600 text-lg sm:text-2xl"></i>
+                <span className="material-symbols-outlined text-purple-600 text-[24px] sm:text-[32px]">
+                  analytics
+                </span>
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-4">
                 Track Everything
               </h3>
               <p className="text-sm sm:text-base text-gray-600">
-                Monitor download counts, track usage statistics, and manage all
-                your shared files from one dashboard.
+                Monitor download counts, track usage statistics, and manage all your shared files
+                from one dashboard.
               </p>
             </CardContent>
           </Card>
@@ -101,8 +106,8 @@ export default function Landing() {
               Ready to start sharing?
             </h3>
             <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-2xl mx-auto">
-              Join thousands of professionals who trust FileGo for their secure
-              file sharing needs. Sign up now and get started instantly.
+              Join thousands of professionals who trust FileGo for their secure file sharing needs.
+              Sign up now and get started instantly.
             </p>
             <Button
               onClick={() => setLocation("/auth")}
@@ -121,13 +126,13 @@ export default function Landing() {
             <div className="md:col-span-2">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <i className="fas fa-share-alt text-white text-sm"></i>
+                  <span className="material-symbols-outlined text-white text-[20px]">share</span>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">FileGo</h3>
               </div>
               <p className="text-gray-600 mb-4">
-                Secure, fast, and reliable file sharing for everyone. Share
-                files up to 2GB with password protection and expiry dates.
+                Secure, fast, and reliable file sharing for everyone. Share files up to 2GB with
+                password protection and expiry dates.
               </p>
             </div>
 
