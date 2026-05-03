@@ -105,6 +105,12 @@ resource "google_compute_address" "server_ip" {
   region = var.gcp_region
 }
 
+
+resource "terraform_data" "startup_hash" {
+  input = filesha256("${path.module}/scripts/startup.sh.tpl")
+}
+
+
 resource "google_compute_instance" "server_vm" {
   name         = "filego-server-vm"
   machine_type = "e2-micro"
@@ -120,6 +126,7 @@ resource "google_compute_instance" "server_vm" {
 
   network_interface {
     network = google_compute_network.vpc_network.name
+
     access_config {
       nat_ip = google_compute_address.server_ip.address
     }
@@ -140,6 +147,12 @@ resource "google_compute_instance" "server_vm" {
       certbot_email = var.certbot_email
     }
   )
+
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.startup_hash
+    ]
+  }
 
   depends_on = [
     google_secret_manager_secret.filego_secrets,
