@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Shield, Clock, Link2 } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -46,43 +45,38 @@ export default function AuthPage() {
         {/* Left Info Section */}
         <div className="hidden md:block">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Share Files Securely
-            </h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">Share Files Securely</h1>
             <p className="text-lg text-gray-600 mb-8">
-              Upload, share, and manage your files with password protection and
-              expiry controls.
+              Upload, share, and manage your files with password protection and expiry controls.
             </p>
             <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
               <div className="text-center p-4">
-                <Upload className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-semibold text-gray-900 mb-1">
-                  Easy Upload
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Drag & drop files up to 2GB
-                </p>
+                <span className="material-symbols-outlined text-blue-600 text-[32px] mx-auto mb-2 block">
+                  upload_file
+                </span>
+                <h3 className="font-semibold text-gray-900 mb-1">Easy Upload</h3>
+                <p className="text-sm text-gray-600">Drag & drop files up to 2GB</p>
               </div>
               <div className="text-center p-4">
-                <Shield className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <span className="material-symbols-outlined text-blue-600 text-[32px] mx-auto mb-2 block">
+                  shield_lock
+                </span>
                 <h3 className="font-semibold text-gray-900 mb-1">Secure</h3>
-                <p className="text-sm text-gray-600">
-                  Password protection available
-                </p>
+                <p className="text-sm text-gray-600">Password protection available</p>
               </div>
               <div className="text-center p-4">
-                <Clock className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <span className="material-symbols-outlined text-blue-600 text-[32px] mx-auto mb-2 block">
+                  schedule
+                </span>
                 <h3 className="font-semibold text-gray-900 mb-1">Expires</h3>
-                <p className="text-sm text-gray-600">
-                  Set automatic expiry dates
-                </p>
+                <p className="text-sm text-gray-600">Set automatic expiry dates</p>
               </div>
               <div className="text-center p-4">
-                <Link2 className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <span className="material-symbols-outlined text-blue-600 text-[32px] mx-auto mb-2 block">
+                  link
+                </span>
                 <h3 className="font-semibold text-gray-900 mb-1">Shareable</h3>
-                <p className="text-sm text-gray-600">
-                  Generate secure download links
-                </p>
+                <p className="text-sm text-gray-600">Generate secure download links</p>
               </div>
             </div>
           </div>
@@ -106,10 +100,7 @@ export default function AuthPage() {
                 {/* Sign In */}
                 <TabsContent value="signin" className="space-y-4">
                   <Form {...signInForm}>
-                    <form
-                      onSubmit={signInForm.handleSubmit(signin)}
-                      className="space-y-4"
-                    >
+                    <form onSubmit={signInForm.handleSubmit(signin)} className="space-y-4">
                       <FormField
                         control={signInForm.control}
                         name="email"
@@ -155,9 +146,7 @@ export default function AuthPage() {
                         )}
                       />
                       <Button type="submit" variant="default" className="w-full">
-                        {signInForm.formState.isSubmitting
-                          ? "Signing in..."
-                          : "Sign In"}
+                        {signInForm.formState.isSubmitting ? "Signing in..." : "Sign In"}
                       </Button>
                     </form>
                   </Form>
@@ -166,10 +155,7 @@ export default function AuthPage() {
                 {/* Sign Up */}
                 <TabsContent value="signup" className="space-y-4">
                   <Form {...signUpForm}>
-                    <form
-                      onSubmit={signUpForm.handleSubmit(signup)}
-                      className="space-y-4"
-                    >
+                    <form onSubmit={signUpForm.handleSubmit(signup)} className="space-y-4">
                       <FormField
                         control={signUpForm.control}
                         name="name"
@@ -195,11 +181,7 @@ export default function AuthPage() {
                           <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                              <Input
-                                type="email"
-                                placeholder="you@example.com"
-                                {...field}
-                              />
+                              <Input type="email" placeholder="you@example.com" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -230,9 +212,7 @@ export default function AuthPage() {
                         )}
                       />
                       <Button type="submit" variant="default" className="w-full">
-                        {signUpForm.formState.isSubmitting
-                          ? "Creating..."
-                          : "Create Account"}
+                        {signUpForm.formState.isSubmitting ? "Creating..." : "Create Account"}
                       </Button>
                     </form>
                   </Form>
@@ -245,9 +225,7 @@ export default function AuthPage() {
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-2 text-gray-500">
-                    Or continue with
-                  </span>
+                  <span className="bg-white px-2 text-gray-500">Or continue with</span>
                 </div>
               </div>
 
