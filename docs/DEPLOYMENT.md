@@ -1,19 +1,30 @@
-# FileGo Deployment Guide
+# FileGo Production Deployment Guide
 
-This guide covers the infrastructure setup and deployment process for FileGo on Google Cloud Platform (GCP) and AWS.
+This document outlines the professional deployment strategy for FileGo, leveraging Google Cloud Platform (GCP) for core infrastructure and AWS for scalable object storage.
 
-## Prerequisites
+## Infrastructure Overview
 
-- **Google Cloud SDK (gcloud)** installed and authenticated.
-- **Terraform** installed.
-- **AWS CLI** installed and authenticated (for S3 setup).
-- A domain name (e.g., via DuckDNS or similar).
+FileGo uses a modern, multi-cloud production architecture provisioned entirely via **Infrastructure as Code (Terraform)**.
 
-## 1. GCP Setup
+### Production Components:
 
-### Enable Required APIs
+- **Compute**: GCP Compute Engine (n2-standard-1) running Dockerized services.
+- **Reverse Proxy**: Nginx with automated SSL/TLS via Certbot (Let's Encrypt).
+- **Configuration**: GCP Secret Manager for secure, centralized environment variable management.
+- **Networking**: Custom GCP VPC with hardened firewall rules (only 80/443 and restricted 22 open).
+- **Storage**: AWS S3 with Lifecycle Rules (automated cleanup of expired files).
+- **Database**: MongoDB Atlas (Production Cluster).
+- **Monitoring**: Better Stack (Uptime & Log Management).
 
-Run the following command to enable the necessary services in your GCP project:
+---
+
+## 1. Automated Provisioning (Terraform)
+
+The entire environment can be spun up or down using Terraform, ensuring environment consistency.
+
+### Required GCP APIs
+
+Enable these services to allow Terraform to manage resources:
 
 ```bash
 gcloud services enable \
@@ -24,105 +35,52 @@ gcloud services enable \
   secretmanager.googleapis.com
 ```
 
-### IAM Permissions
+### Applying Infrastructure
 
-Ensure your deployment identity (User or Service Account) has the following roles:
+1. Navigate to the `terraform/` directory.
+2. Define your variables in `terraform.tfvars`.
+3. Run the provisioning commands:
+   ```bash
+   terraform init
+   terraform apply -auto-approve
+   ```
 
-- `Secret Manager Admin`
-- `Project IAM Admin`
-- `Compute Admin`
+---
 
-### Secret Manager
+## 2. CI/CD Pipeline (GitHub Actions)
 
-Terraform will automatically create and manage secrets for the following:
+FileGo implements a robust CI/CD workflow to ensure only tested code reaches production.
 
-- `MONGO_URL`
-- `JWT_SECRET`
-- `JWT_REFRESH_SECRET`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `BETTER_STACK_TOKEN`
+- **Continuous Integration**: On every PR/Push to `main`, the workflow runs the full test suite (39+ tests) including backend unit tests and frontend Vitest suites.
+- **Continuous Deployment**: Successful merges to the `deploy` branch trigger an automated deployment to the GCP production VM.
 
-## 2. AWS Setup
+### Deployment Workflow Steps:
 
-### S3 Bucket Permissions
+1. **Build & Test**: Validates the application state.
+2. **Sync Secrets**: Updates GCP Secret Manager with any new credentials.
+3. **Remote Update**: Connects to the GCP VM via SSH and pulls the latest changes.
+4. **Zero-Downtime Restart**: Restarts Docker containers with the new build.
 
-Ensure your AWS IAM user has permissions to create and manage S3 buckets. The following policy is recommended:
+---
 
-```json
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:CreateBucket",
-        "s3:DeleteBucket",
-        "s3:PutBucketCors",
-        "s3:PutLifecycleConfiguration",
-        "s3:GetBucketLocation",
-        "s3:ListBucket"
-      ],
-      "Resource": "*"
-    }
-  ]
-}
-```
+## 3. Security Hardening
 
-## 3. Infrastructure Deployment (Terraform)
+- **GCP Secret Manager**: No `.env` files are stored on the server. The application fetches secrets directly from GCP's secure vault at runtime or during build.
+- **Nginx Reverse Proxy**: Handles SSL termination and protects the Node.js backend from direct internet exposure.
+- **Firewall Rules**: The VPC is configured to block all traffic except for standard web ports (80, 443) and SSH (restricted to specific IPs).
 
-### Configuration
+---
 
-Create a `terraform.tfvars` file (or provide variables via environment variables) with the following values:
+## 4. Monitoring & Observability
 
-```hcl
-gcp_project_id      = "your-gcp-project-id"
-gcp_region          = "asia-south1"
-mongo_url           = "your-mongodb-atlas-url"
-jwt_secret          = "your-secure-jwt-secret"
-jwt_refresh_secret  = "your-secure-jwt-refresh-secret"
-google_client_id    = "your-google-oauth-client-id"
-google_client_secret = "your-google-oauth-client-secret"
-aws_access_key      = "your-aws-access-key"
-aws_secret_key      = "your-aws-secret-key"
-aws_region          = "ap-south-1"
-better_stack_token  = "your-better-stack-token"
-github_repo         = "0xdaksh-12/FileGo"
-domain_name         = "filego.yourdomain.org"
-certbot_email       = "your-email@example.com"
-```
+- **Better Stack Logs**: Professional-grade log aggregation for the Node.js backend.
+- **Better Stack Uptime**: Real-time heartbeat monitoring to ensure 99.9% availability.
+- **Health Checks**: The server exposes a `/health` endpoint used by GCP to monitor instance status.
 
-### Apply Infrastructure
-
-```bash
-cd terraform
-terraform init
-terraform apply -auto-approve
-```
-
-## 4. CI/CD with GitHub Actions
-
-The repository includes a GitHub Actions workflow that automates the deployment.
-
-### Required Secrets in GitHub
-
-Set the following secrets in your GitHub repository settings:
-
-- `GCP_PROJECT_ID`
-- `GCP_SA_KEY` (JSON key for the `terraform-deployer` service account)
-- `MONGO_URL`
-- `JWT_SECRET`
-- `JWT_REFRESH_SECRET`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `BETTER_STACK_TOKEN`
+---
 
 ## Troubleshooting
 
-- **VPC Deletion Failure**: Ensure the VM instance is deleted before attempting to delete the network.
-- **Permission Denied**: Verify that the `terraform-deployer` service account has `roles/resourcemanager.projectIamAdmin` and `roles/secretmanager.admin`.
-- **API Not Enabled**: Ensure `cloudresourcemanager.googleapis.com` is enabled manually if Terraform fails to bootstrap it.
+- **VPC Deletion**: GCP requires all resources (VMs, Firewalls) to be removed before the VPC can be destroyed.
+- **SSH Access**: Ensure the `GCP_SA_KEY` in GitHub Secrets has sufficient permissions to manage Compute Engine instances.
+- **Domain Propagation**: DNS changes for your domain (e.g., DuckDNS) may take a few minutes to propagate after the IP is assigned by GCP.
