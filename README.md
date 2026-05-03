@@ -79,7 +79,7 @@ make dev
 ```
 
 - **Client**: [http://localhost:5173](http://localhost:5173)
-- **API Docs**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+- **API Docs**: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
 ## Architecture
 

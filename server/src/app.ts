@@ -64,9 +64,9 @@ app.use(requestHandler);
 // Swagger API Documentation
 try {
   const swaggerDocument = YAML.load(path.join(__dirname, "../swagger.yaml"));
-  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } catch (e) {
-  logger.warn("Swagger documentation not found or failed to load. Skipping /api-docs.");
+  logger.warn("Swagger documentation not found or failed to load. Skipping /api/docs.");
 }
 
 app.get("/health", (req, res) => {
