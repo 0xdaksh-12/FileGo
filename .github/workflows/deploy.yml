@@ -56,6 +56,9 @@ jobs:
             "projects/${{ secrets.GCP_PROJECT_ID }}/secrets/$s" || true
           done
 
+          terraform import google_compute_instance.server_vm \
+            projects/${{ secrets.GCP_PROJECT_ID }}/zones/asia-south1-a/instances/filego-server-vm || true
+
       - name: Terraform Plan
         run: terraform plan -input=false
         working-directory: ./terraform

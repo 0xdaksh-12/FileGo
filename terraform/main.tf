@@ -1,4 +1,3 @@
-# --- AWS S3 ---
 resource "aws_s3_bucket" "filego_uploads" {
   bucket = "filego-uploads-${random_id.suffix.hex}"
 }
@@ -34,7 +33,6 @@ resource "aws_s3_bucket_cors_configuration" "filego_cors" {
   }
 }
 
-# --- Google Cloud ---
 
 resource "google_project_service" "apis" {
   for_each = toset([
@@ -71,11 +69,6 @@ resource "google_secret_manager_secret" "filego_secrets" {
   depends_on = [google_project_service.apis]
 }
 
-resource "google_secret_manager_secret_version" "filego_secrets_version" {
-  for_each    = local.secrets
-  secret      = google_secret_manager_secret.filego_secrets[each.key].id
-  secret_data = each.value
-}
 
 resource "google_service_account" "server_sa" {
   account_id   = "filego-server-sa"
@@ -143,7 +136,7 @@ resource "google_compute_instance" "server_vm" {
   })
 
   depends_on = [
-    google_secret_manager_secret_version.filego_secrets_version,
+    google_secret_manager_secret.filego_secrets,
     google_project_service.apis
   ]
 }
