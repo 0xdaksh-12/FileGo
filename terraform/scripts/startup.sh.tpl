@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
 
 # FileGo VM Startup Script
 # Rendered by Terraform templatefile() — do not edit directly.
@@ -24,14 +25,16 @@ apt-get update && apt-get install -y google-cloud-sdk
 # Docker Engine + Compose Plugin
 curl -fsSL https://download.docker.com/linux/debian/gpg \
   | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-echo "deb [arch=$$(dpkg --print-architecture) \
+echo "deb [arch=$(dpkg --print-architecture) \
   signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] \
-  https://download.docker.com/linux/debian $$(lsb_release -cs) stable" \
+  https://download.docker.com/linux/debian $(lsb_release -cs) stable" \
   | tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+usermod -aG docker daksh || true
 
 # Clone repository
+mkdir -p /opt
 if [ ! -d /opt/filego ]; then
   git clone https://github.com/${github_repo}.git /opt/filego
 fi
@@ -39,20 +42,20 @@ cd /opt/filego
 
 # Fetch secrets and generate server .env
 get_secret() {
-  gcloud secrets versions access latest --secret="$${1}"
+  gcloud secrets versions access latest --secret="${1}"
 }
 
-export MONGO_URL=$$(get_secret "MONGO_URL")
-export JWT_SECRET=$$(get_secret "JWT_SECRET")
-export JWT_REFRESH_SECRET=$$(get_secret "JWT_REFRESH_SECRET")
-export AWS_ACCESS_KEY_ID=$$(get_secret "AWS_ACCESS_KEY_ID")
-export AWS_SECRET_ACCESS_KEY=$$(get_secret "AWS_SECRET_ACCESS_KEY")
+export MONGO_URL=$(get_secret "MONGO_URL")
+export JWT_SECRET=$(get_secret "JWT_SECRET")
+export JWT_REFRESH_SECRET=$(get_secret "JWT_REFRESH_SECRET")
+export AWS_ACCESS_KEY_ID=$(get_secret "AWS_ACCESS_KEY_ID")
+export AWS_SECRET_ACCESS_KEY=$(get_secret "AWS_SECRET_ACCESS_KEY")
 export AWS_REGION="${aws_region}"
 export AWS_BUCKET_NAME="${bucket_name}"
 export CLIENT_URL="https://${domain_name}"
-export GOOGLE_CLIENT_ID=$$(get_secret "GOOGLE_CLIENT_ID")
-export GOOGLE_CLIENT_SECRET=$$(get_secret "GOOGLE_CLIENT_SECRET")
-export BETTER_STACK_SOURCE_TOKEN=$$(get_secret "BETTER_STACK_TOKEN")
+export GOOGLE_CLIENT_ID=$(get_secret "GOOGLE_CLIENT_ID")
+export GOOGLE_CLIENT_SECRET=$(get_secret "GOOGLE_CLIENT_SECRET")
+export BETTER_STACK_SOURCE_TOKEN=$(get_secret "BETTER_STACK_TOKEN")
 
 envsubst < terraform/scripts/env.template > server/.env
 
