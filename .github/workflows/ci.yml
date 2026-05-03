@@ -31,7 +31,7 @@ jobs:
       - name: Pre-download MongoDB binary
         run: node node_modules/mongodb-memory-server/postinstall.js
       - name: Run Server Tests
-        run: pnpm test -- --runInBand
+        run: pnpm test --runInBand
 
   client-test:
     runs-on: ubuntu-latest
