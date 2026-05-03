@@ -8,116 +8,91 @@
 ![Google OAuth](https://img.shields.io/badge/Google-OAuth-4285F4?logo=google&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=2496ED)
 ![Testing](https://img.shields.io/badge/Tests-39_Passed-success?logo=vitest)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC?logo=terraform&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/CI/CD-Automated-2088FF?logo=githubactions&logoColor=white)
 
-FileGo is a modern, high-performance file sharing application built with a focus on security, scalability, and seamless user experience. It leverages AWS S3 presigned URLs for direct browser-to-cloud uploads, minimizing server load and maximizing throughput.
+FileGo is a production-grade, high-performance file sharing application built with a focus on security, scalability, and automated infrastructure. This project demonstrates a full-stack deployment on **Google Cloud Platform (GCP)** using **Terraform (IaC)** and **GitHub Actions (CI/CD)**.
+
+## Production Highlights
+
+- **Multi-Cloud Architecture**: Leverages GCP for compute, AWS S3 for storage, and MongoDB Atlas for data.
+- **Infrastructure as Code**: Entire GCP environment (VMs, Networks, Secrets) provisioned via Terraform.
+- **Fully Automated CI/CD**: Seamless deployments to production on every push to the `deploy` branch.
+- **Hardened Security**: SSL/TLS via Certbot, Nginx reverse proxy, and GCP Secret Manager for sensitive credentials.
 
 ## Key Features
 
-- **Direct S3 Uploads**: Files bypass the server, uploaded directly to S3 via presigned URLs.
-- **Secure Sharing**: Optional password protection for shared files.
-- **Auto-Expiry**: Set TTL for files (1h, 1d, 7d, etc.) with automatic background cleanup.
-- **Real-time Stats**: Dashboard with storage usage tracking and download analytics.
-- **Auth System**: Hybrid JWT session management with HTTP-only refresh tokens and Google OAuth support.
-- **Hardened Architecture**: Rate-limited endpoints, CSRF-resistant cookies, and compound cursor pagination.
+- **Direct S3 Uploads**: Files bypass the server, uploaded directly to S3 via presigned URLs for maximum efficiency.
+- **Secure Sharing**: Optional password protection and secure download links.
+- **Auto-Expiry**: Automated background cleanup of expired files based on configurable TTL.
+- **Real-time Stats**: Comprehensive dashboard with storage usage and download analytics.
+- **Robust Auth**: Hybrid JWT session management with HTTP-only cookies and Google OAuth integration.
 
 ## Tech Stack
 
 - **Frontend:** React 19, Vite, TanStack Query, Zustand, Tailwind CSS 4, Radix UI.
-- **Backend:** Node.js 20, Express, Mongoose, Zod (Validation), Winston (Logging).
-- **Database:** MongoDB 7.0 (Replica Set supported for Transactions).
+- **Backend:** Node.js 22, Express, Mongoose, Zod, Winston (Professional Logging).
+- **Database:** MongoDB 7.0 (Replica Set).
 - **Storage:** AWS S3 (v3 SDK).
-- **Tooling:** Docker Compose, Volta, Husky, Prettier, Jest (Backend), Vitest (Frontend).
+- **Infrastructure:** Google Cloud Platform (Compute Engine, Secret Manager, VPC).
+- **DevOps:** Terraform, GitHub Actions, Docker Compose, Nginx.
 
-## Quick Start
+## Production Deployment
 
-The project includes a `Makefile` to simplify all common operations.
+This project is designed to be deployed in a professional production environment.
+
+### Infrastructure as Code (IaC)
+
+The infrastructure is fully automated using Terraform. It provisions:
+
+- A secure VPC network and firewall rules.
+- A GCP Compute Engine instance running Docker.
+- GCP Secret Manager for centralized configuration.
+- AWS S3 bucket with automated lifecycle rules.
+
+### CI/CD Pipeline
+
+Every push to the `main` branch runs automated tests, while pushes to the `deploy` branch trigger a full production deployment via GitHub Actions.
+
+Refer to the [Deployment Guide](docs/DEPLOYMENT.md) for step-by-step instructions.
+
+## Quick Start (Development)
 
 ### 1. Prerequisites
 
-- Node.js (v22+) or [Volta](https://volta.sh/)
+- Node.js (v22+)
 - Docker & Docker Compose
-- AWS S3 Bucket & IAM Credentials
+- AWS S3 Bucket
 
 ### 2. Setup
 
 ```bash
-# Clone the repo
-git clone https://github.com/0xflame-7/FileGo.git
-cd FileGo
-
-# Install all dependencies (Root, Client, Server)
 make install
-
-# Setup environment variables
 cp server/.env.example server/.env
-# Fill in your AWS, MongoDB, and JWT secrets in server/.env
+# Configure your secrets in server/.env
 ```
 
-### 3. Observability & Auth
-
-- **Better Stack Logs**: Get a source token from [Better Stack](https://betterstack.com/) and add `BETTER_STACK_SOURCE_TOKEN` to `server/.env`.
-- **Better Stack Uptime**: Add `BETTER_STACK_UPTIME_URL` (heartbeat) to `server/.env` to enable real-time health monitoring.
-- **Google OAuth**: Create a project in the [Google Cloud Console](https://console.cloud.google.com/), obtain a **Client ID** and **Client Secret**.
-  - Add both to `server/.env`.
-  - Add only the **Client ID** to `client/.env`.
-
-### 4. Running Locally
+### 3. Running Locally
 
 ```bash
-# Run client and server concurrently
 make dev
 ```
 
 - **Client**: [http://localhost:5173](http://localhost:5173)
-- **Server**: [http://localhost:3000](http://localhost:3000)
 - **API Docs**: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
 
-## Deployment
+## Architecture
 
-### Docker (Self-Hosted / VPS)
-
-The easiest way to deploy FileGo is via Docker Compose.
-
-1. SSH into your server.
-2. Clone the repo and set up `.env`.
-3. Run `make docker-up`.
-
-### Managed Infrastructure (Terraform)
-
-We provide Terraform scripts for a multi-cloud production setup:
-
-- **GCP**: Backend VM (Compute Engine).
-- **Vercel**: Frontend hosting.
-- **AWS**: S3 storage with lifecycle rules.
-
-See [terraform/README.md](terraform/README.md) for the full guide.
+Detailed architectural diagrams and data flows can be found in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Testing
 
-The project is backed by a comprehensive suite of 39 automated tests.
+The project is backed by a comprehensive suite of 39 automated tests (Unit, Integration, and E2E).
 
 ```bash
-# Run all tests
 make test
-
-# Run specific suites
-make test-server
-make test-client
 ```
-
-## API Documentation
-
-Once the server is running, visit `/api-docs` to explore the full Swagger documentation. Key endpoints include:
-
-- `POST /api/auth/register` | `login` | `refresh`
-- `POST /api/files/upload-url` (Generate presigned URL)
-- `GET /api/files` (Paginated user files)
-- `POST /api/files/:id/download` (Password-protected download)
-
-## Infrastructure
-
-Terraform configurations for GCP, AWS, and Vercel are located in the `terraform/` directory. See [terraform/README.md](terraform/README.md) for deployment instructions.
 
 ## License
 
-Licensed under the [ISC License](LICENSE).
+Licensed under the [Apache License 2.0](LICENSE).
