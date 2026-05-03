@@ -1,4 +1,9 @@
 terraform {
+  backend "gcs" {
+    bucket = "filego-terraform-state"
+    prefix = "prod"
+  }
+
   required_providers {
     google = {
       source  = "hashicorp/google"
