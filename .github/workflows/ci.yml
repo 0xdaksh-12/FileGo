@@ -28,7 +28,10 @@ jobs:
       - run: pnpm run lint
         continue-on-error: true
       - run: pnpm run build
-      - run: pnpm test
+      - name: Install MongoDB binary
+        run: pnpm exec mongodb-memory-server install
+      - name: Run Server Tests
+        run: pnpm test -- --runInBand
 
   client-test:
     runs-on: ubuntu-latest
