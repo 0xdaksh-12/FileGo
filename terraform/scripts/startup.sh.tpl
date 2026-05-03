@@ -61,7 +61,8 @@ export BETTER_STACK_SOURCE_TOKEN=$(get_secret "BETTER_STACK_TOKEN")
 envsubst < terraform/scripts/env.template > server/.env
 
 # Start application (root-level nginx handles routing)
-docker compose -f docker-compose.yml up -d --build
+docker compose -f docker-compose.yml pull
+docker compose -f docker-compose.yml up -d
 
 # Configure host Nginx as a thin TLS-terminating reverse proxy.
 # All routing logic lives inside the Docker nginx container.
