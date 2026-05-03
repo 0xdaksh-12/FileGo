@@ -12,7 +12,6 @@
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
-  "type": "module",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.890.0",
     "@aws-sdk/s3-request-presigner": "^3.890.0",
