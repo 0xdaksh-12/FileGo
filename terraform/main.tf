@@ -1,5 +1,6 @@
+# AWS
 resource "aws_s3_bucket" "filego_uploads" {
-  bucket = "filego-uploads-${random_id.suffix.hex}"
+  bucket = "filego-uploads-daksh"
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "filego_lifecycle" {
@@ -17,10 +18,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "filego_lifecycle" {
   }
 }
 
-resource "random_id" "suffix" {
-  byte_length = 4
-}
-
 resource "aws_s3_bucket_cors_configuration" "filego_cors" {
   bucket = aws_s3_bucket.filego_uploads.id
 
@@ -34,6 +31,7 @@ resource "aws_s3_bucket_cors_configuration" "filego_cors" {
 }
 
 
+#  Google Cloud
 resource "google_project_service" "apis" {
   for_each = toset([
     "secretmanager.googleapis.com",
@@ -47,14 +45,14 @@ resource "google_project_service" "apis" {
 
 locals {
   secrets = {
-    "MONGO_URL"             = var.mongo_url
-    "JWT_SECRET"            = var.jwt_secret
-    "JWT_REFRESH_SECRET"    = var.jwt_refresh_secret
-    "GOOGLE_CLIENT_ID"      = var.google_client_id
-    "GOOGLE_CLIENT_SECRET"  = var.google_client_secret
-    "AWS_ACCESS_KEY_ID"     = var.aws_access_key
-    "AWS_SECRET_ACCESS_KEY" = var.aws_secret_key
-    "BETTER_STACK_TOKEN"    = var.better_stack_token
+    MONGO_URL             = var.mongo_url
+    JWT_SECRET            = var.jwt_secret
+    JWT_REFRESH_SECRET    = var.jwt_refresh_secret
+    GOOGLE_CLIENT_ID      = var.google_client_id
+    GOOGLE_CLIENT_SECRET  = var.google_client_secret
+    AWS_ACCESS_KEY_ID     = var.aws_access_key
+    AWS_SECRET_ACCESS_KEY = var.aws_secret_key
+    BETTER_STACK_TOKEN    = var.better_stack_token
   }
 }
 
@@ -69,27 +67,29 @@ resource "google_secret_manager_secret" "filego_secrets" {
   depends_on = [google_project_service.apis]
 }
 
-
 resource "google_service_account" "server_sa" {
   account_id   = "filego-server-sa"
   display_name = "FileGo Server Service Account"
-  depends_on   = [google_project_service.apis]
+
+  depends_on = [google_project_service.apis]
 }
 
 resource "google_project_iam_member" "secret_accessor" {
   project = var.gcp_project_id
   role    = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${google_service_account.server_sa.email}"
+
+  member = "serviceAccount:${google_service_account.server_sa.email}"
 }
 
 resource "google_compute_network" "vpc_network" {
-  name                    = "filego-network-${random_id.suffix.hex}"
+  name                    = "filego-network"
   auto_create_subnetworks = true
-  depends_on              = [google_project_service.apis]
+
+  depends_on = [google_project_service.apis]
 }
 
 resource "google_compute_firewall" "default" {
-  name    = "filego-firewall-${random_id.suffix.hex}"
+  name    = "filego-firewall"
   network = google_compute_network.vpc_network.name
 
   allow {
@@ -99,6 +99,7 @@ resource "google_compute_firewall" "default" {
 
   source_ranges = ["0.0.0.0/0"]
 }
+
 resource "google_compute_address" "server_ip" {
   name   = "filego-server-ip"
   region = var.gcp_region
@@ -108,6 +109,8 @@ resource "google_compute_instance" "server_vm" {
   name         = "filego-server-vm"
   machine_type = "e2-micro"
   zone         = "${var.gcp_region}-a"
+
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {
@@ -127,13 +130,16 @@ resource "google_compute_instance" "server_vm" {
     scopes = ["cloud-platform"]
   }
 
-  metadata_startup_script = templatefile("${path.module}/scripts/startup.sh.tpl", {
-    github_repo   = var.github_repo
-    aws_region    = var.aws_region
-    bucket_name   = aws_s3_bucket.filego_uploads.bucket
-    domain_name   = var.domain_name
-    certbot_email = var.certbot_email
-  })
+  metadata_startup_script = templatefile(
+    "${path.module}/scripts/startup.sh.tpl",
+    {
+      github_repo   = var.github_repo
+      aws_region    = var.aws_region
+      bucket_name   = aws_s3_bucket.filego_uploads.bucket
+      domain_name   = var.domain_name
+      certbot_email = var.certbot_email
+    }
+  )
 
   depends_on = [
     google_secret_manager_secret.filego_secrets,
