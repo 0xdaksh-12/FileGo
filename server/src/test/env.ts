@@ -11,4 +11,3 @@ process.env.PORT = "3001";
 process.env.GOOGLE_CLIENT_ID = "test-google-client-id.apps.googleusercontent.com";
 process.env.GOOGLE_CLIENT_SECRET = "test-google-client-secret";
 process.env.BETTER_STACK_SOURCE_TOKEN = "test-token";
-process.env.BETTER_STACK_UPTIME_URL = "test-uptime-token";

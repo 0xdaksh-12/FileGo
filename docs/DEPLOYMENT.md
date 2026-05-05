@@ -74,7 +74,7 @@ FileGo implements a robust CI/CD workflow to ensure only tested code reaches pro
 ## 4. Monitoring & Observability
 
 - **Better Stack Logs**: Professional-grade log aggregation for the Node.js backend.
-- **Better Stack Uptime**: Real-time heartbeat monitoring to ensure 99.9% availability.
+
 - **Health Checks**: The server exposes a `/health` endpoint used by GCP to monitor instance status.
 
 ---
