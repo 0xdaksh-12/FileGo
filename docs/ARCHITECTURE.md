@@ -1,6 +1,6 @@
 # FileGo Production Architecture
 
-FileGo is a production-grade, high-performance file sharing application. The infrastructure is designed for high availability, security, and cost-effectiveness, leveraging a multi-cloud approach provisioned via Terraform.
+FileGo is a production-grade, high-performance file sharing application. The infrastructure is designed for high availability, security, and cost-effectiveness, leveraging a multi-cloud approach pr[...]
 
 ## High-Level System Architecture
 
@@ -9,18 +9,18 @@ flowchart TD
     User([User]) --> |HTTPS/SSL| Nginx[Nginx Reverse Proxy]
     Nginx --> |Proxies| NodeApp[Node.js Express API]
 
-    subgraph Google Cloud Platform (VPC)
+    subgraph GCP["Google Cloud Platform (VPC)"]
         NodeApp --> |Fetches Secrets| SecretManager[GCP Secret Manager]
         NodeApp --> |Runs in Docker| Compute[Compute Engine VM]
     end
 
     User --> |Uploads/Downloads| S3[(AWS S3 Bucket)]
 
-    subgraph Data Layer
+    subgraph DataLayer["Data Layer"]
         NodeApp --> |CRUD Metadata| MongoDB[(MongoDB Atlas)]
     end
 
-    subgraph Object Storage (AWS)
+    subgraph AWS_Storage["Object Storage (AWS)"]
         S3 --> |Lifecycle Rules| Expiry[Auto-Cleanup]
     end
 
