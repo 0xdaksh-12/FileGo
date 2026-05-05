@@ -6,11 +6,16 @@ import { getSession } from "../services/sessionService";
 import { wrapAsync } from "../utils/tryCatchWrapper";
 import { env } from "../config/env";
 
+export interface AuthRequest extends Request {
+  userId?: string;
+  sessionId?: string;
+}
+
 /**
  * Verify the authentication token and check if the user is authorized
  */
 export const isAuthenticated = wrapAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: AuthRequest, res: Response, next: NextFunction) => {
     const authorization = req.headers.authorization;
     if (!authorization || !authorization.startsWith("Bearer ")) {
       throw new UnauthorizedError("No token provided");
@@ -55,7 +60,6 @@ export const isAuthenticated = wrapAsync(
     // Attach to request
     req.userId = userId;
     req.sessionId = sessionId;
-
     next();
   },
 );

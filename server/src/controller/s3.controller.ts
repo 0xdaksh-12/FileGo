@@ -3,6 +3,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "crypto";
 import path from "path";
 import { Request, Response } from "express";
+import { AuthRequest } from "../middleware/auth.Middleware";
 import s3 from "../lib/s3";
 import { wrapAsync } from "../utils/tryCatchWrapper";
 import { formatBytes, parseUploadOptions } from "../utils/helper";
@@ -15,7 +16,7 @@ import { env } from "../config/env";
 import mongoose from "mongoose";
 import { logger } from "../utils/logger";
 
-export const getUploadUrl = wrapAsync(async (req: Request, res: Response) => {
+export const getUploadUrl = wrapAsync(async (req: AuthRequest, res: Response) => {
   const { name, type, size, expiresAt: expiry, password } = req.body;
   const uuid = randomUUID();
   const userId = req.userId as string;
@@ -102,7 +103,7 @@ export const downloadFileUrl = wrapAsync(async (req: Request, res: Response) => 
   res.json({ downloadUrl });
 });
 
-export const getStatsS3 = wrapAsync(async (req: Request, res: Response) => {
+export const getStatsS3 = wrapAsync(async (req: AuthRequest, res: Response) => {
   const userId = req.userId as string;
 
   const [totalUploads, activeFiles, totalDownloads, user] = await Promise.all([
@@ -120,7 +121,7 @@ export const getStatsS3 = wrapAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const getAllFiles = wrapAsync(async (req: Request, res: Response) => {
+export const getAllFiles = wrapAsync(async (req: AuthRequest, res: Response) => {
   const userId = req.userId as string;
   const { limit, cursor } = req.query;
   const parsedLimit = limit ? parseInt(limit as string) : 20;
@@ -149,7 +150,7 @@ export const getAllFiles = wrapAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const deleteFile = wrapAsync(async (req: Request, res: Response) => {
+export const deleteFile = wrapAsync(async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const userId = req.userId as string;
 

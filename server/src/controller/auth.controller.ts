@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { AuthRequest } from "../middleware/auth.Middleware";
 import { OAuth2Client } from "google-auth-library";
 import { Types } from "mongoose";
 import { ConflictError, UnauthorizedError } from "../utils/errorHandler";
@@ -192,7 +193,7 @@ export const refresh_token = wrapAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const logout_user = wrapAsync(async (req: Request, res: Response) => {
+export const logout_user = wrapAsync(async (req: AuthRequest, res: Response) => {
   removeCookieToken(res);
   const sessionId = req.sessionId as string;
   if (sessionId) {
@@ -201,7 +202,7 @@ export const logout_user = wrapAsync(async (req: Request, res: Response) => {
   res.status(204).send();
 });
 
-export const get_user = wrapAsync(async (req: Request, res: Response) => {
+export const get_user = wrapAsync(async (req: AuthRequest, res: Response) => {
   const userId = req.userId as string;
   const user = await getUserById(userId);
   if (!user) {
