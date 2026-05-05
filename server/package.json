@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "dev": "nodemon ./src/server.ts",
+    "dev": "tsx watch ./src/server.ts",
     "start": "node ./dist/server.js"
   },
   "keywords": [],
@@ -17,7 +17,6 @@
     "@aws-sdk/s3-request-presigner": "^3.890.0",
     "@logtail/node": "^0.5.8",
     "@logtail/winston": "^0.5.8",
-    "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -48,10 +47,9 @@
     "aws-sdk-client-mock": "^4.1.0",
     "jest": "^30.3.0",
     "mongodb-memory-server": "^11.1.0",
-    "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.9",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   },
   "volta": {

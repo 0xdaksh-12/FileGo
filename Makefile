@@ -34,15 +34,26 @@ build: ## Build client and server
 	$(NPM) run build --prefix client
 	$(NPM) run build --prefix server
 
-docker-up: ## Start docker containers (Development)
-	@echo "Starting Docker containers..."
-	$(DC) up --build
+docker-dev-up: ## Start local development docker environment
+	@echo "Starting Dev Docker containers..."
+	$(DC) -f docker-compose.dev.yml up --build --remove-orphans
 
-logs: ## Tail all logs
+docker-dev-logs: ## Tail development logs
+	$(DC) -f docker-compose.dev.yml logs -f
+
+docker-dev-down: ## Stop development docker containers
+	@echo "Stopping Dev Docker containers..."
+	$(DC) -f docker-compose.dev.yml down -v
+
+docker-prod-up: ## Start production docker containers
+	@echo "Starting Production Docker containers..."
+	$(DC) up -d
+
+docker-prod-logs: ## Tail production logs
 	$(DC) logs -f
 
-docker-down: ## Stop docker containers
-	@echo "Stopping Docker containers..."
+docker-prod-down: ## Stop production docker containers
+	@echo "Stopping Production Docker containers..."
 	$(DC) down -v
 
 clean: ## Remove build artifacts and node_modules

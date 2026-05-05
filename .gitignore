@@ -3,6 +3,8 @@ node_modules/
 dist/
 build/
 .next/
+.pnpm-store
+.pn
 
 # Environment
 .env
@@ -29,3 +31,6 @@ Thumbs.db
 *.tfvars.json
 tfplan
 .terraform.lock.hcl
+
+# Artifact
+*png

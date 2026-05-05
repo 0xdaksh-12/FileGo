@@ -1,0 +1,107 @@
+services:
+  mongodb:
+    image: mongo:6
+    container_name: filego-mongodb-dev
+    command: ["mongod", "--replSet", "rs0", "--quiet", "--logpath", "/dev/null"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  mongodb-setup:
+    image: mongo:6
+    container_name: filego-mongodb-setup
+    depends_on:
+      - mongodb
+    command: >
+      bash -c "
+        sleep 5;
+        mongosh --host mongodb:27017 --eval 'rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"mongodb:27017\"}]})' || true
+      "
+
+  minio:
+    image: minio/minio
+    container_name: filego-minio-dev
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  minio-setup:
+    image: minio/mc
+    container_name: filego-minio-setup
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin &&
+      /usr/bin/mc mb myminio/filego-dev --ignore-existing &&
+      /usr/bin/mc anonymous set public myminio/filego-dev
+      "
+
+  server:
+    image: node:22-alpine
+    container_name: filego-server-dev
+    working_dir: /app/server
+    volumes:
+      - ./server:/app/server
+      - /app/server/node_modules
+      - /app/server/.pnpm-store
+      - /app/server/.pn
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm run dev"
+    ports:
+      - "3000:3000"
+    environment:
+      - CI=true
+      - NODE_ENV=development
+      - MONGO_URL=mongodb://mongodb:27017/filego
+      - JWT_SECRET=BqOqkiFkU2s+guVquqPcyuFm2gl65Q+IJeLHvYez428=
+      - JWT_REFRESH_SECRET=BqOqkiFkU2s+guVquqPcyuFm2gl65Q+IJeLHvYez428=
+      - CLIENT_URL=http://localhost:8080
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_REGION=us-east-1
+      - AWS_BUCKET_NAME=filego-dev
+      - AWS_ENDPOINT_URL=http://minio:9000
+      - AWS_FORCE_PATH_STYLE=true
+    depends_on:
+      - mongodb
+      - minio
+
+  client:
+    image: node:22-alpine
+    container_name: filego-client-dev
+    working_dir: /app/client
+    volumes:
+      - ./client:/app/client
+      - /app/client/node_modules
+      - /app/client/.pnpm-store
+      - /app/client/.pn
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm run dev --host 0.0.0.0"
+    environment:
+      - CI=true
+      - NODE_ENV=development
+
+  nginx:
+    image: nginx:alpine
+    container_name: filego-nginx-dev
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - server
+      - client
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  minio_data:
